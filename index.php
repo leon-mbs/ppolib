@@ -28,18 +28,19 @@ spl_autoload_register('lib_autoload');
            \phpseclib3\Math\BigInteger::setEngine('PHP32') ;       
       }
  
-         \phpseclib3\Math\BigInteger::setEngine('BCMath');
+       //  \phpseclib3\Math\BigInteger::setEngine('BCMath');
+          \phpseclib3\Math\BigInteger::setEngine('GMP');
 
-   $cert  = file_get_contents(_ROOT . "/data/8030938.cer") ;
-   $key  = file_get_contents(_ROOT . "/data/Key-6.dat") ;
+   $cert  = file_get_contents(_ROOT . "/data/newkey/EU.cer") ;
+   $key  = file_get_contents(_ROOT . "/data/newkey/Key-6.dat") ;
   // $key  = file_get_contents("d:/leon/projects/node/sign/resources/Key-6.dat") ;
     
-    \PPOLib\KeyStore::load($key,"tectfom",$cert) ;
+    \PPOLib\KeyStore::load($key,"qwe123" ) ;
 
  //  $s =  \PPOLib\Util::sign("xxx");
   
   /*
-  SEQUENCE (3 elem)
+ SEQUENCE (3 elem)
   INTEGER 3
   SEQUENCE (2 elem)
     OBJECT IDENTIFIER 1.2.840.113549.1.7.1 data (PKCS #7)
@@ -61,7 +62,7 @@ spl_autoload_register('lib_autoload');
                             SEQUENCE (2 elem)
                               OBJECT IDENTIFIER 1.2.840.113549.1.5.12 pkcs5PBKDF2 (PKCS #5 v2.0)
                               SEQUENCE (3 elem)
-                                OCTET STRING (32 byte) 9BD13FE454215345DC97F23351BB7235A3703FD6727F1794F949DC420B74FD59
+                                OCTET STRING (32 byte) 370A07F3387EFCB41860392A340A26493F2FCA653BF5DABB2CFD0EB63CF5D496
                                 INTEGER 10000
                                 SEQUENCE (2 elem)
                                   OBJECT IDENTIFIER 1.2.804.2.1.1.1.1.1.2
@@ -69,14 +70,14 @@ spl_autoload_register('lib_autoload');
                             SEQUENCE (2 elem)
                               OBJECT IDENTIFIER 1.2.804.2.1.1.1.1.1.1.3
                               SEQUENCE (2 elem)
-                                OCTET STRING (8 byte) 65C02DF9CA389C2C
+                                OCTET STRING (8 byte) 5313536DFE48265C
                                 OCTET STRING (64 byte) A9D6EB45F13C708280C4967B231F5EADF658EBA4C037291D38D96BF025CA4E17F8E972…
-                        OCTET STRING (244 byte) E4E2780C9CFA281A2CA314CA7897BBDD64EDB3D2D898BA18EEA4D96482E1C10C32EFA…
+                        OCTET STRING (244 byte) 4280DF7BC61960E4FB9D0D5DC0D562FF1DBCBA361BD2D60B9F147B555BA4E3ADBB0F7…
                     SET (1 elem)
                       SEQUENCE (2 elem)
                         OBJECT IDENTIFIER 1.2.840.113549.1.9.21 localKeyID (for PKCS #12) (PKCS #9 via PKCS #12)
                         SET (1 elem)
-                          OCTET STRING (32 byte) BE7C482C767901CF604F87744CE43B68C0D393B427BAA20683CB57AF7954F281
+                          OCTET STRING (32 byte) E1B13ED5B3BD75DE937920589BF2C21EB6C3BC45082079C43469905B0D81780D
                   SEQUENCE (3 elem)
                     OBJECT IDENTIFIER 1.2.840.113549.1.12.10.1.2 pkcs-12-pkcs-8ShroudedKeyBag (PKCS #12 BagIds)
                     [0] (1 elem)
@@ -87,7 +88,7 @@ spl_autoload_register('lib_autoload');
                             SEQUENCE (2 elem)
                               OBJECT IDENTIFIER 1.2.840.113549.1.5.12 pkcs5PBKDF2 (PKCS #5 v2.0)
                               SEQUENCE (3 elem)
-                                OCTET STRING (32 byte) 7539D278EDC111D863AF02A0DD5685327CF8405E460D3FE33A5E6985FDA1567D
+                                OCTET STRING (32 byte) AA5990D2EB4667E4D45C90A6C4317D6959B25553B1163D2EA4FF9C6907C0661C
                                 INTEGER 10000
                                 SEQUENCE (2 elem)
                                   OBJECT IDENTIFIER 1.2.804.2.1.1.1.1.1.2
@@ -95,21 +96,22 @@ spl_autoload_register('lib_autoload');
                             SEQUENCE (2 elem)
                               OBJECT IDENTIFIER 1.2.804.2.1.1.1.1.1.1.3
                               SEQUENCE (2 elem)
-                                OCTET STRING (8 byte) 671DAA01FB6B8057
+                                OCTET STRING (8 byte) 0F29DFEAE4B14DEB
                                 OCTET STRING (64 byte) A9D6EB45F13C708280C4967B231F5EADF658EBA4C037291D38D96BF025CA4E17F8E972…
-                        OCTET STRING (341 byte) 20B4390FCB72F2F13247A11101E6A8BE0AF0DFAE1976B9233157E6596CFDF7EA7ED39…
+                        OCTET STRING (341 byte) 585C235EFDE5BDEA97BD8AA7F589070109F57390448B564EB92757318BFF52E55F93F…
                     SET (1 elem)
                       SEQUENCE (2 elem)
                         OBJECT IDENTIFIER 1.2.840.113549.1.9.21 localKeyID (for PKCS #12) (PKCS #9 via PKCS #12)
                         SET (1 elem)
-                          OCTET STRING (32 byte) 71A592E8B040B95F7D2F10FF7D63DB1888E1CDEDA1EEC6D45D891BBD8D01C99F
+                          OCTET STRING (32 byte) 6042348D87A133FC90280E1F868AE947BCDBFA344EEA6646B1A54CBD982B4D2B
   SEQUENCE (3 elem)
     SEQUENCE (2 elem)
       SEQUENCE (2 elem)
         OBJECT IDENTIFIER 1.2.804.2.1.1.1.1.2.1
         NULL
-      OCTET STRING (32 byte) 87B8BBC783AB7E67598A5342D996B3AD190128E76CBE17501E51DCCE7CFB4753
-    OCTET STRING (32 byte) F239D3FD473289D9DE7A407FE700453267DDDBA4C03A66F8D7FD06086F5BA554
+      OCTET STRING (32 byte) 504CAE132DBDC9BDDB5F223EA15D732AC5EBFF2789B4370B528FAD71B7179AC0
+    OCTET STRING (32 byte) B5CE07211D4572A9E599B13A0F79E1E2DF5A8BF158FFBF98CC9305B8EBFFAD40
     INTEGER 10000
+
     
     */

@@ -16,7 +16,9 @@
         
         
          $seq = \ASN1\Type\Constructed\Sequence::fromDER($keydata) ;
-      
+       //try  IIT
+    
+    /*
       try{   
          
          $uid = $seq->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
@@ -31,15 +33,17 @@
          $mac = $cryptParam->at(0)->asOctetString()->string() ;
          $pad = $cryptParam->at(1)->asOctetString()->string() ;
      
-         
+       
          $cryptData =  $seq->at(1)->asOctetString()->string() ;
         
          $mac = Util::bstr2array($mac) ;
          $pad = Util::bstr2array($pad) ;
          $cbuf = Util::bstr2array($cryptData) ;
-       //  $key = Util::convert_password($pass) ;
-       
+         
+ 
+      
         //конвертим пароль
+       
         $n=10000;
         $data = Util::str2array($pass)   ;
         $hash = new \PPOLib\Algo\Hash();
@@ -49,18 +53,20 @@
         $n--;
         while($n--){
           $hash = new \PPOLib\Algo\Hash();
-          $hash->update32($ret);
+          $hash->update32($key);
 
           $key = $hash->finish();
             
         }       
+         
        
-       
-         // 163,237 ,61  ,241,37
+        
       //  $key = Util::array2bstr($key) ;
          // file_put_contents(__DIR__ . "/convpass",$key) ;
        //  $key2 = file_get_contents(_ROOT . "data/convpass" ) ;
-    //  $key2 = Util::bstr2array($key2) ;
+     // $key = Util::bstr2array($key2) ;
+         
+         
          
          $gost = new \PPOLib\Algo\Gost() ;
          $key = $gost->key($key) ;
@@ -79,10 +85,10 @@
          
            
          $param_d=  $seq->at(2)->asOctetString()->string();
-         $d1= Util::bstr2array($key['param_d']) ;
+         $d1= Util::bstr2array($param_d) ;
          
          $privkey1 =  new Priv($d1,$curveparams)  ; 
-          $keys[]=$privkey1;
+         $keys[]=$privkey1;
           
           
           $attr = $seq->at(3)->asTagged()->asImplicit(16)->asSequence()  ;
@@ -112,6 +118,45 @@
       }  catch( \Exception $e)  {
          $msg = $e->getMessage() ;
       }
+           */
+      //try  pbes
+      try{
+          $keydata  =substr($keydata,57); //skip pfx header
+          $seq = \ASN1\Type\Constructed\Sequence::fromDER($keydata) ;
+          foreach($seq as $bag) {
+              $uid = $bag->at(0)->asObjectIdentifier()->oid() ;   //1.2.840.113549.1.12.10.1.2  (PKCS #12 BagIds
+              
+              $seq = $bag->at(1)->asTagged()->asImplicit(16)->asSequence()  ; 
+              
+              $seq =   $seq->at(0)->asSequence()  ;  
+              $cryprData =  $seq->at(1)->asOctetString()->string();
+
+              $PBES2 =   $seq->at(0)->asSequence()->at(1)->asSequence()  ;  
+             
+              $keyDerivation =   $PBES2->at(0)->asSequence()    ;  
+              $uid = $keyDerivation->at(0)->asObjectIdentifier()->oid() ;   //1.2.840.113549.1.5.12 
+      
+              $salt = $keyDerivation->at(1)->asSequence()->at(0)->asOctetString()->string();
+              $iter = $keyDerivation->at(1)->asSequence()->at(1)->asInteger()->number();
+            
+              $encryption =   $PBES2->at(1)->asSequence()    ;  
+              $uid = $encryption->at(0)->asObjectIdentifier()->oid() ;   //1.2.804.2.1.1.1.1.1.1.3
+              $iv =  $encryption->at(1)->asSequence()->at(0)->asOctetString()->string();
+              $sbox =  $encryption->at(1)->asSequence()->at(1)->asOctetString()->string();
+              
+              //пароль
+              $data = Util::str2array($pass)   ;
+              $hash = new \PPOLib\Algo\Hash();
+            
+              
+          }
+         
+         
+      } 
+      catch (\Exception $e)
+        {
+            $m = $e->getMessage() ;
+        }
          
        return $keys;
     }

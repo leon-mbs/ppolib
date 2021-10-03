@@ -9,15 +9,13 @@
  class Priv  {
      
  
-   public $curve;  
+ 
    public $d;  
    public function __construct($d,$curvep) {
        
-       $this->d = $d;
+       $this->d = new Field($d,$curvep) ;
        
-       $this->curve = new Curve($curvep);
-       
-       
+ 
        
    }
    
