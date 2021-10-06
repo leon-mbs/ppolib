@@ -148,10 +148,58 @@
               $data = Util::str2array($pass)   ;
               $hash = new \PPOLib\Algo\Hash();
             
-              
+              $key = Util::alloc(32) ;
+              $pw_pad36 = Util::alloc(32,0x36) ;
+              $pw_pad5C = Util::alloc(32,0x5C) ;
+              $ins = Util::alloc(4) ;
+              $ins[3]=1;               
             
-              
-          }
+            for($k=0; $k < count($data); $k++) {
+                $pw_pad36[$k] ^= $data[$k+1];
+            }
+            
+            for($k=0; $k < count($data); $k++) {
+                $pw_pad5C[$k] ^= $data[$k+1];
+            }   
+               
+            $hash->update32($pw_pad36) ;  
+            $hash->update(Util::str2array($salt)) ;  
+            $hash->update($ins) ;  
+            $h = $hash->finish() ;
+            $hash = new \PPOLib\Algo\Hash();
+             
+            $hash->update32($pw_pad5C) ;  
+            $hash->update32($h) ;  
+            $h = $hash->finish() ;
+       
+            $iter--;
+            for($k = 0; $k < 32; $k++) {
+                $key[$k] = $h[$k];
+            } 
+            
+            
+            while ($iter-- > 0)  {
+                $hash = new \PPOLib\Algo\Hash();
+                $hash->update32($pw_pad36) ;  
+                $hash->update32($h) ;  
+                $h = $hash->finish() ;
+           
+                $hash = new \PPOLib\Algo\Hash();
+                $hash->update32($pw_pad5C) ;  
+                $hash->update32($h) ;  
+                $h = $hash->finish() ;
+         
+         
+                for($k = 0; $k < 32; $k++) {
+                   $key[$k] ^= $h[$k];
+                } 
+       
+            }
+            
+            
+            
+                 
+          } //bag
          
          
       } 

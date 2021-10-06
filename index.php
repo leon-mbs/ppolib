@@ -35,7 +35,7 @@ spl_autoload_register('lib_autoload');
    $key  = file_get_contents(_ROOT . "/data/newkey/Key-6.dat") ;
   // $key  = file_get_contents("d:/leon/projects/node/sign/resources/Key-6.dat") ;
     
-    \PPOLib\KeyStore::load($key,"qwe123" ) ;
+    \PPOLib\KeyStore::load($key,"123qwe" ) ;
 
  //  $s =  \PPOLib\Util::sign("xxx");
   

@@ -78,10 +78,10 @@ class Util
     }
 
 
-    public static function alloc($length) {
+    public static function alloc($length,$v=0) {
         $a = array();
         for ($i = 0; $i < $length; $i++) {
-            $a[$i] = 0;
+            $a[$i] = $v;
         }
         return $a;
     }
