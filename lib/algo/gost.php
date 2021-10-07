@@ -91,7 +91,7 @@ class Gost
 
     }
 
-    public function crypt64($clear) {
+    public function crypt64($clear ) {
         $n = array();
         $n[0] = $clear[0] | ($clear[1] << 8) | ($clear[2] << 16) | ($clear[3] << 24);
         $n[1] = $clear[4] | ($clear[5] << 8) | ($clear[6] << 16) | ($clear[7] << 24);
@@ -218,7 +218,49 @@ class Gost
         return $out;
     }
 
-
+    public function decrypt_cfb($iv,$data ){
+        $this->gamma = Util::alloc(8) ;
+        $cur_iv = Util::alloc(8) ;
+    
+    
+        for ($idx=0; $idx < 8; $idx++) {
+            $cur_iv[$idx] = $iv[$idx];
+        }        
+        
+        $blocks = ceil(count($data)/8) ;
+        $clear =  Util::alloc($blocks * 8);
+        
+        $idx=0;
+        $off=0;
+        while ($idx < $blocks) {
+            $off = $idx++ * 8;
+            $res= $this->decrypt64_cfb($cur_iv, array_slice($data,$off,  8)  );
+            $cur_iv = $res[1] ;
+            for($i=0;$i<8;$i++) {
+               $clear[$off+$i]=$res[0][$i]; 
+            }
+           
+               
+        }      
+        
+        
+        return array_slice($clear,0,244) ;
+    }   
+    
+    public function decrypt64_cfb($iv,$data){
+      
+        $clear =  Util::alloc( 8);
+        $this->gamma = $this->crypt64($iv );
+        for ($j = 0; $j < 8; $j++) {
+            $iv[$j] = $data[$j];
+            $clear[$j] = $data[$j] ^ $this->gamma[$j];
+        }  
+        
+        return array( $clear,$iv);
+                 
+    }    
+    
+    
 }
 
 

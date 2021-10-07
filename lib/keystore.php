@@ -144,6 +144,8 @@
               $iv =  $encryption->at(1)->asSequence()->at(0)->asOctetString()->string();
               $sbox =  $encryption->at(1)->asSequence()->at(1)->asOctetString()->string();
               
+              
+              
               //пароль
               $data = Util::str2array($pass)   ;
               $hash = new \PPOLib\Algo\Hash();
@@ -196,8 +198,19 @@
        
             }
             
+            $gost = new \PPOLib\Algo\Gost() ;
+            $key = $gost->key($key) ;
+
+            $cryprData = Util::bstr2array($cryprData) ;
+            $iv = Util::bstr2array($iv) ;
+
+                         
+            $buf = $gost->decrypt_cfb($iv,$cryprData);
             
+            $parsed = Util::array2bstr($buf);
             
+            $seq = \ASN1\Type\Constructed\Sequence::fromDER($parsed) ;
+       
                  
           } //bag
          
