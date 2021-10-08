@@ -38,18 +38,14 @@
             
            }
      
-           $baseb = Util::str2array($this->b)  ;
-           $basebh = Util::array2hex($baseb)  ;
-           
-            $o = new BigInteger($this->order,10) ;
-            $baseoh=  $o->toHex()     ;
-           
-           $basea = Util::str2array($base)  ;
-           $baseh = Util::array2hex($basea)  ;
-             
-          $baseh='';  
+      
          
       
+   }
+   
+   
+   public function expandBP(){
+       
    }
           
  }      

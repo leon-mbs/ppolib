@@ -31,11 +31,11 @@ spl_autoload_register('lib_autoload');
        //  \phpseclib3\Math\BigInteger::setEngine('BCMath');
           \phpseclib3\Math\BigInteger::setEngine('GMP');
 
-   $cert  = file_get_contents(_ROOT . "/data/newkey/EU.cer") ;
-   $key  = file_get_contents(_ROOT . "/data/newkey/Key-6.dat") ;
-  // $key  = file_get_contents("d:/leon/projects/node/sign/resources/Key-6.dat") ;
-    
-    \PPOLib\KeyStore::load($key,"123qwe" ) ;
+   $cert  = file_get_contents(_ROOT . "/data/oldkey/8030938.cer") ;
+   $key  = file_get_contents(_ROOT . "/data/oldkey/Key-6.dat") ;
+   
+  
+    \PPOLib\KeyStore::load($key,"tectfom",$cert ) ;
 
  //  $s =  \PPOLib\Util::sign("xxx");
   

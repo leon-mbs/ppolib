@@ -244,7 +244,7 @@ class Gost
         }      
         
         
-        return array_slice($clear,0,244) ;
+        return $clear;
     }   
     
     public function decrypt64_cfb($iv,$data){
