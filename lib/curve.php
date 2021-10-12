@@ -55,12 +55,25 @@
           
           
           $bit = $x->testBit(0) ;
-          $x->setBit(0,!$bit) ;
+          $x->setBit(0,$bit) ;
          
           $trace = $x->trace();
           return  $p;
       }   
  
+      
+      public function getModulo(){
+          // 84310
+  //  85310   
+          $m = Field::get0($this) ;
+          $x->setBit(8,1) ;
+          $x->setBit(4,1) ;
+          $x->setBit(3,1) ;
+          $x->setBit(1,1) ;
+          $x->setBit(0,1) ;
+          return $m;
+          
+      }
           
  }      
  

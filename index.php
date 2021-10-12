@@ -40,11 +40,11 @@ spl_autoload_register('lib_autoload');
  //  $s =  \PPOLib\Util::sign("xxx");
   
   
-   $f =  \PPOLib\Field::fromString('110',2) ;
+   $f =  \PPOLib\Field::fromString('11011',2) ;
    $d =  \PPOLib\Field::fromString('101',2) ;
     
-   $f->mul($d) ;
-  
+  $f=  $f->div($d) ;
+    
   
   
   
