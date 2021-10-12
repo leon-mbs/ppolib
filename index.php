@@ -23,21 +23,30 @@ function lib_autoload($className) {
 spl_autoload_register('lib_autoload'); 
 
       if(PHP_INT_SIZE >=8) {
-        \phpseclib3\Math\BigInteger::setEngine('PHP64') ;    
+      //  \phpseclib3\Math\BigInteger::setEngine('PHP64') ;    
         }   else  {
-           \phpseclib3\Math\BigInteger::setEngine('PHP32') ;       
+         //  \phpseclib3\Math\BigInteger::setEngine('PHP32') ;       
       }
  
        //  \phpseclib3\Math\BigInteger::setEngine('BCMath');
-          \phpseclib3\Math\BigInteger::setEngine('GMP');
+        //  \phpseclib3\Math\BigInteger::setEngine('GMP');
 
-   $cert  = file_get_contents(_ROOT . "/data/oldkey/8030938.cer") ;
-   $key  = file_get_contents(_ROOT . "/data/oldkey/Key-6.dat") ;
+   //$cert  = file_get_contents(_ROOT . "/data/oldkey/8030938.cer") ;
+  // $key  = file_get_contents(_ROOT . "/data/oldkey/Key-6.dat") ;
    
   
-    \PPOLib\KeyStore::load($key,"tectfom",$cert ) ;
+   // \PPOLib\KeyStore::load($key,"tectfom",$cert ) ;
 
  //  $s =  \PPOLib\Util::sign("xxx");
+  
+  
+   $f =  \PPOLib\Field::fromString('110',2) ;
+   $d =  \PPOLib\Field::fromString('101',2) ;
+    
+   $f->mul($d) ;
+  
+  
+  
   
   /*
  SEQUENCE (3 elem)

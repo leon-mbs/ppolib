@@ -5,7 +5,7 @@
  
   
  use \PPOLib\Util ;
-  use  \phpseclib3\Math\BigInteger;  
+ 
  
  class  Curve {
                     
@@ -17,7 +17,6 @@
            $this->a = $seq->at(1)->asInteger()->number();
            $this->b = $seq->at(2)->asOctetString()->string();
            $this->order  = $seq->at(3)->asInteger()->number() ;
-           $base = $seq->at(4)->asOctetString()->string();
            $this->kofactor = [2];
              
            $this->m =  $seq->at(0)->asSequence()->at(0)->asInteger()->number() ;
@@ -38,15 +37,30 @@
             
            }
      
+           $base =  $seq->at(4)->asOctetString()->string();
+     
+           
+           $this->base = $this->expand($base) ;
+    
       
+   }
+    public   function expand($value ){
          
-      
-   }
-   
-   
-   public function expandBP(){
-       
-   }
+          $a = Field::fromString("".$this->a,10,$this) ;
+          
+     
+          $b =  Field::fromBinary($this->b,$this );      
+          
+          $x =  Field::fromBinary($value,$this );      
+          
+          
+          $bit = $x->testBit(0) ;
+          $x->setBit(0,!$bit) ;
+         
+          $trace = $x->trace();
+          return  $p;
+      }   
+ 
           
  }      
  

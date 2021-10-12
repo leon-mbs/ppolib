@@ -3,7 +3,7 @@
  
   
  use \PPOLib\Util ;
- use  \phpseclib3\Math\BigInteger; 
+ 
  
  
  class Priv  {
@@ -11,11 +11,10 @@
  
  
    public $d;  
-   public function __construct($d,$curvep) {
-       
-       $this->d = new Field($d,$curvep) ;
-       
- 
+   public function __construct($d,$curve) {
+       $c = new Curve($curve) ;
+       $this->d =   Field::fromBinary($d,$c) ;
+   
        
    }
    

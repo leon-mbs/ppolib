@@ -18,7 +18,7 @@
          $seq = \ASN1\Type\Constructed\Sequence::fromDER($keydata) ;
        //try  IIT
     
-     /*
+     
       try{   
          
          $uid = $seq->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
@@ -43,7 +43,7 @@
  
       
         //конвертим пароль
-       
+        /*
         $n=10000;
         $data = Util::str2array($pass)   ;
         $hash = new \PPOLib\Algo\Hash();
@@ -58,13 +58,13 @@
           $key = $hash->finish();
             
         }       
-         
+          */
        
         
       //  $key = Util::array2bstr($key) ;
          // file_put_contents(_ROOT . "data/convpass",$key) ;
-       //  $key2 = file_get_contents(_ROOT . "data/convpass" ) ;
-     // $key = Util::bstr2array($key2) ;
+          $key2 = file_get_contents(_ROOT . "data/convpass" ) ;
+      $key = Util::bstr2array($key2) ;
          
          
          
@@ -118,7 +118,7 @@
       }  catch( \Exception $e)  {
          $msg = $e->getMessage() ;
       }
-         */  
+            
       //try  pbes
        /*
       try{
@@ -252,8 +252,8 @@
        */
    
     
-     //  file_put_contents(_ROOT . "data/keys2",serialize($keys));
-       $keys = unserialize(file_get_contents(_ROOT . "data/keys2" ) );
+     //  file_put_contents(_ROOT . "data/keys",serialize($keys));
+      // $keys = unserialize(file_get_contents(_ROOT . "data/keys2" ) );
       
     
           $cert = Cert::load($cert) ;
