@@ -47,28 +47,65 @@
    {
         return gmp_strval($this->value,$base);
    } 
+   public function clone(){
+     
+       return Field::fromString($this->toString(16),16,$this->curve) ;
+       
+   }
   
    public function getLength( ) 
    {
-        return strlen(gmp_strval($this->value,10) );
+        return strlen(gmp_strval($this->value,2) );
    } 
    
    public function testBit($i){
-     return   gmp_testbit($this->value,$i) ;
+     return   gmp_testbit($this->value,$i) == true ? 1:0;;
    }
  
    public function setBit($i,$v){
          gmp_setbit($this->value,$i,$v) ;
    }
+
+   public function shiftLeft($n){
+        $s = gmp_strval($this->value,2);;
+        for($i=0;$i<$n;$i++) {
+           $s = $s.'0';   
+        }
+        $this->value = gmp_init($s,2) ;
+        
+   }
+   public function shiftRight($n){
+        $s = gmp_strval($this->value,2);;
+        $s0 = str_repeat('0',$n) ;
+        $s= $s.$s0;
+        $this->value = gmp_init($s,2) ;
+        
+   }
+  public function shiftRightCycle($n){
+        $s = gmp_strval($this->value,2);;
+        for($i=0;$i<n;$i++) {
+           $last =  substr($s,strlen($s)-1,1) ;
+           $s = $last. substr($s,0,strlen($s)-1) ;   
+        }
+        $this->value = gmp_init($s,2) ;
+        
+   }
+   
    public function trace(){
       return 0;
    }
-   public function add($v){
+   public function add(Field $v){
       
-       $this->value = gmp_xor($this->value,$v) ;
+       $f = new  Field();
+       $f->value = gmp_xor($this->value,$v->value) ;
+       $f->curve = $this->curve;
+       if($f->curve==null) $f->curve = $v->curve;
+       return $f;
+       
+       
    }
    
-   public function mul($v){
+   public function _mul($v){
       $k1 = $this->KoefArray();
       $k2 = $v->KoefArray();
       $kout =   Util::alloc(count($k1)+count($k2)) ;
@@ -119,39 +156,130 @@
        $f->curve = $curve;
        return $f; 
    }   
-   
+  public static function get1($curve=null)  {
+        
+       $f = new  Field() ;
+       $f->value =  gmp_init((int)1) ;
+       
+       $f->curve = $curve;
+       return $f; 
+   }   
+ public   function is0()  {
+        
+       $s = $this->value->toString(2);
+       
+       
+       return $s=='0'; 
+   }   
+    
    
    public function mod(){
          
-          $m = Field::get0(null) ;
-          $m->setBit(8,1) ;
-          $m->setBit(4,1) ;
-          $m->setBit(3,1) ;
-          $m->setBit(1,1) ;
-          $m->setBit(0,1) ;
-  
-  
-          return $this->div($m) ;
-             
+          $m = $this->curve->getModulo();
+    
+          $rc=$this->div($m) ;
+          
+          return $rc[1] ; 
        
    }
-    public function div($v){
-        
-    }
+   
   
+  
+   public function mulmod(Field $v){
+         $m = $this->mul($v) ;
+         $r = $m->mod()  ;
+         return $r;
+   }
+   
+   public function divmod(Field $v){
+        // $m = $this->div($v) ;
+      //   $r = $m->mod()  ;
+       //  return $r;
+   }
    
    
+   public function mul(Field $v){
+       
+       $bag = Field::get0() ;
+       $shift = $this->clone() ;
+         
+       for($i=0;$i<$v->getLength();$i++)  {
+           
+         //  $bh = $bag->toString(2) ;
+           
+            
+           $bit = $v->testBit($i) ;
+           if($bit==1) {
+              $bag = $bag->add($shift) ; 
+           }
+        //   $bh2 = $bag->toString(2) ;
+           $shift->shiftLeft(1) ;
+ 
+       }
+       $bag->curve = $this->curve;
+       if($bag->curve==null) $bag->curve = $v->curve;
+
+       return $bag;
+   }  
+    public function div(Field $v){
+        $res='';
+        
+        $bag = $this->clone() ;
+        $vl=$v->getLength() ;
+         
+        
+     
+         while(true) {
+            $bl =  $bag->getLength() ;
+            $shift = $v->clone() ;
+            $shift->shiftLeft($bl-$vl)  ;
+            $bag = $bag->add($shift) ;
+            $fh = $bag->toString(2) ;
+            $res .= "1";
+            $blnew = $bag->getLength() ;
+            $bdiff = $bl-$blnew;
+            if($blnew<$vl) {
+                
+                $ediff =  $bl- $vl;  //осталось  до  конца
+                if($ediff>0) {
+                   $res = $res. str_repeat('0',$ediff) ;
+                }              
+                $rest = $bag;
+                $rh = $rest->toString(2) ;
+               
+                $rs = Field::fromString($res,2) ;
+                $rsh = $rs->toString(2) ;
+                return array($rs,$rest);
+            }  
+            if($bdiff>1) {
+               $res = $res. str_repeat('0',$bdiff-1) ;
+            }
+
+            
+         }
+    } 
    // 84310
   //  85310
   
   
   //5∙7=(x^2+1)∙(x^2+x+1)=x^4+x^3+x^2+x^2+x+1=x^4+x^3+x+1=11011=27
     
-   // 11011  111
-  //  111    101
-  //   0111
-  //    111
+    // 1010
+  //   1011
      
+    // 1010
+   // 1010
+  //1010
+ // 1001110
+    
+   // 1001110  1011
+  //  1011     1011 
+  //    10110
+  //    1010
+    //   1110
+    //   1110     
+        
+        
       
         
  }

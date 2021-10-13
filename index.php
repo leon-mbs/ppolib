@@ -31,22 +31,28 @@ spl_autoload_register('lib_autoload');
        //  \phpseclib3\Math\BigInteger::setEngine('BCMath');
         //  \phpseclib3\Math\BigInteger::setEngine('GMP');
 
-   //$cert  = file_get_contents(_ROOT . "/data/oldkey/8030938.cer") ;
-  // $key  = file_get_contents(_ROOT . "/data/oldkey/Key-6.dat") ;
+    $cert  = file_get_contents(_ROOT . "/data/oldkey/8030938.cer") ;
+    $key  = file_get_contents(_ROOT . "/data/oldkey/Key-6.dat") ;
    
   
-   // \PPOLib\KeyStore::load($key,"tectfom",$cert ) ;
+     \PPOLib\KeyStore::load($key,"tectfom",$cert ) ;
 
  //  $s =  \PPOLib\Util::sign("xxx");
   
   
-   $f =  \PPOLib\Field::fromString('11011',2) ;
-   $d =  \PPOLib\Field::fromString('101',2) ;
-    
-  $f=  $f->div($d) ;
-    
+   $k =  \PPOLib\Field::fromString('abcd1',16) ;
+   $d =  \PPOLib\Field::fromString('dcba2',16) ;
+
+  $f=  $k->mul($d) ;
+    $f = $f->add(\PPOLib\Field::get1()) ; 
+  $fh = $f->toString(16) ;
+  
+  $rc = $f->div($k) ;
+  
+  $rch = $rc[0]->toString(16);
   
   
+   $fh=null;
   
   /*
  SEQUENCE (3 elem)
