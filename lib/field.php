@@ -22,7 +22,7 @@
        $f->value =  gmp_init($str,$base) ;
        
        $f->curve = $curve;
-       
+       $i = $f->toIntArray()  ;
        return $f;
         
    }
@@ -47,6 +47,53 @@
    {
         return gmp_strval($this->value,$base);
    } 
+   
+   public function compare(Field $v ) 
+   {
+        
+        return gmp_cmp($this->value,$v->value);
+   } 
+   public function toByteArray(  ) 
+   {
+        $s =  $this->toString(16);
+        
+       return  Util::hex2array($s) ;
+   } 
+   public function toIntArray(  ) 
+   {
+        $u8=  $this->toByteArray();
+       
+        $in_value=array();
+        $in_value[0]=0;
+        foreach($u8 as $i=>$v) {
+           $in_value[$i+1]=$v; 
+        }
+    
+        $value=array();
+        $bpos=0;
+        $vidx=0;
+        
+        
+        for($idx=count($in_value)-1; $idx >= 0; $idx-- ) {
+            $code = $in_value[$idx];
+            $bpos = $bpos % 4;
+
+            if ($code < 0) {
+                $code = 256 + $code;
+            }
+            $value[$vidx] |= $code << ($bpos*8);
+            if( $value[$vidx]<0) {
+                 $value[$vidx]  = 0x100000000 +  $value[$vidx];
+            }
+            if($bpos === 3) $vidx++;
+            $bpos++;
+        }        
+        
+        return $value;
+        
+   } 
+   
+   
    public function clone(){
      
        return Field::fromString($this->toString(16),16,$this->curve) ;
@@ -71,14 +118,20 @@
         for($i=0;$i<$n;$i++) {
            $s = $s.'0';   
         }
-        $this->value = gmp_init($s,2) ;
-        
+        $f = new  Field();
+        $f->value = gmp_init($s,2) ;
+        $f->curve = $this->curve;
+        if($f->curve==null) $f->curve = $v->curve;
+        return $f;       
    }
    public function shiftRight($n){
         $s = gmp_strval($this->value,2);;
         $s0 = str_repeat('0',$n) ;
         $s= $s.$s0;
-        $this->value = gmp_init($s,2) ;
+        $f = new  Field();        
+         $f->curve = $this->curve;
+        if($f->curve==null) $f->curve = $v->curve;
+        return $f;         $f->value = gmp_init($s,2) ;
         
    }
   public function shiftRightCycle($n){
@@ -87,12 +140,25 @@
            $last =  substr($s,strlen($s)-1,1) ;
            $s = $last. substr($s,0,strlen($s)-1) ;   
         }
-        $this->value = gmp_init($s,2) ;
-        
+            $f = new  Field(); 
+        $f->value = gmp_init($s,2) ;
+         $f->curve = $this->curve;
+        if($f->curve==null) $f->curve = $v->curve;
+        return $f;         
    }
    
    public function trace(){
-      return 0;
+      $m =  $this->curve->m;
+      $t =  $this->clone();
+      $h = $t->toString(16)   ;
+      for($i=1;$i<=$m-1;$i++) {
+         $t = $t->mulmod($t); 
+         $h1 = $t->toString(16)   ;         
+         $t=$t->add($this);
+         $h2 = $t->toString(16)   ;         
+      }
+      $h = $t->toString(16)   ;
+      return $t->testBit(0);
    }
    public function add(Field $v){
       
@@ -104,7 +170,7 @@
        
        
    }
-   
+   /*
    public function _mul($v){
       $k1 = $this->KoefArray();
       $k2 = $v->KoefArray();
@@ -147,7 +213,7 @@
        return  $f;
        
    }
-   
+   */
    public static function get0($curve=null)  {
         
        $f = new  Field() ;
@@ -173,10 +239,32 @@
    }   
     
    
+   public function powmod($t){
+       if($t==0) {
+           return  Field::get1() ;
+       }
+       if($t==1) {
+           return  $this->clone() ;
+       }
+       $x = $this->clone()  ;
+       for($i=$t;$i>1;$i--) {
+         $x = $x->mulmod($x)  ;
+       }
+       
+       return $x;
+       
+   }
    public function mod(){
          
           $m = $this->curve->getModulo();
-    
+          $cmp = $this->compare($m)  ;
+          if($cmp==0) {
+             return Field::get0() ;
+          }
+          if($cmp<0) {
+             return $this->clone() ;
+          }
+         
           $rc=$this->div($m) ;
           
           return $rc[1] ; 
@@ -213,7 +301,7 @@
               $bag = $bag->add($shift) ; 
            }
         //   $bh2 = $bag->toString(2) ;
-           $shift->shiftLeft(1) ;
+         $shift =   $shift->shiftLeft(1) ;
  
        }
        $bag->curve = $this->curve;
@@ -224,6 +312,13 @@
     public function div(Field $v){
         $res='';
         
+        $c = $this->compare($v) ;
+        if($c==0){
+            return  array(Field::get1(),Field::get0() );
+        } 
+        if($c<0){
+            return  array(Field::get0(),$this->clone());
+        } 
         $bag = $this->clone() ;
         $vl=$v->getLength() ;
          
@@ -232,7 +327,8 @@
          while(true) {
             $bl =  $bag->getLength() ;
             $shift = $v->clone() ;
-            $shift->shiftLeft($bl-$vl)  ;
+           $shift =   $shift->shiftLeft($bl-$vl)  ;
+            
             $bag = $bag->add($shift) ;
             $fh = $bag->toString(2) ;
             $res .= "1";
@@ -258,6 +354,52 @@
             
          }
     } 
+    
+ 
+    public function invert(){
+ 
+         
+         $r = $this->mod();
+         $s = $this->curve->getModulo();;
+    
+         $u = Field::get1($this->curve) ;
+         $v = Field::get0($this->curve) ;
+         
+  
+       while ($r->getLength() > 1){
+                $j = $s->getLength()  - $r->getLength()  ;
+                          
+                
+                if( $j < 0){
+          
+                    $tmp = $r->clone();
+                    $r = $s->clone();
+                    $s = $tmp ;
+                    $tmp = $u->clone();
+                    $u = $v->clone();
+                    $v = $tmp ;
+                    $j = 0-$j;
+                       
+                }
+            
+                
+               
+              
+                
+                $s = $s->add($r->shiftLeft($j)) ;
+                $v = $v->add($u->shiftLeft($j)) ;
+                
+                
+                $hu = $u->toString(16);      
+                $rh=$r->toString(16);       
+       } 
+           
+        return $u ;      
+         
+      
+     }
+  
+ 
    // 84310
   //  85310
   
