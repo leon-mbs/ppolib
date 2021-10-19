@@ -87,7 +87,7 @@
          $param_d=  $seq->at(2)->asOctetString()->string();
        //  $d1= Util::bstr2array($param_d) ;
          
-         $privkey1 =  new Priv($param_d,$curveparams)  ; 
+         $privkey1 =  new Priv($param_d,$curveparams,true)  ; 
          $keys[]=$privkey1;
           
           

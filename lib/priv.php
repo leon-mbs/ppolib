@@ -11,9 +11,14 @@
  
  
    public $d;  
-   public function __construct($d,$curve) {
-       $c = new Curve($curve) ;
-       $this->d =   Field::fromBinary($d,$c) ;
+   public function __construct($d,$curve,$le=false) {
+       $c = new Curve($curve,$le) ;
+       $d = Util::bstr2array($d) ;
+       if($le) {
+          $d  = array_reverse($d) ;   
+       }
+       
+       $this->d =   Field::fromString( Util::array2hex($d),16 ,$c) ;
    
        
    }
