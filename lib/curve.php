@@ -106,7 +106,9 @@
           $y = $y->mulmod($x);
           $h23 = $y->toString(16) ;    
           
-          return  new Point($x,$y);
+          
+ 
+          return  new Point($x,$y) ;
       }   
  
   public function fsquad(Field $v ) {

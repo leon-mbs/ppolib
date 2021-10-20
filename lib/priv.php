@@ -10,12 +10,15 @@
      
  
  
-   public $d;  
-   public function __construct($d,$curve,$le=false) {
+   private $d;  
+   public function __construct($d,$curve,$le=false,$inv=false) {
        $c = new Curve($curve,$le) ;
        $d = Util::bstr2array($d) ;
        if($le) {
           $d  = array_reverse($d) ;   
+       }
+       if($inv) {
+          $d  =Util::addzero(Util::invert($d));   
        }
        
        $this->d =   Field::fromString( Util::array2hex($d),16 ,$c) ;
@@ -24,12 +27,12 @@
    }
    
    public  function pub(){
-       
+        return  new Pub($this->d);
    }
    
  }
  
-
+  
  
  
  /*

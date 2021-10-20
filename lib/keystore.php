@@ -11,7 +11,7 @@
  
    
     public static function  load($keydata,$pass,$cert ) {
-          
+         $cert = Cert::load($cert) ;  
          $keys = array(); 
         
         
@@ -110,7 +110,7 @@
              }  
           }     
      
-          $privkey2 =  new Priv($param_d2,$curve2)  ; 
+          $privkey2 =  new Priv($param_d2,$curve2,false,true)  ; 
           
           $keys[]=$privkey2;
                  
@@ -252,7 +252,7 @@
        */
    
     
-     //  file_put_contents(_ROOT . "data/keys",serialize($keys));
+       file_put_contents(_ROOT . "data/keys",serialize($keys));
       // $keys = unserialize(file_get_contents(_ROOT . "data/keys2" ) );
       
     

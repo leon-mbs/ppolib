@@ -194,5 +194,41 @@ class Util
         }
         return $ret;
     }   
+    
+    
+    public  static  function invert($in){
+      
+      $ret = array();
+        for ($i = count($in) - 1; $i >= 0; $i--) {
+            $cr = $in[$i];
+            $cr = (
+                $cr >> 7          | ($cr >> 5) &  2 | ($cr >> 3) &  4 | ($cr >> 1) & 8
+                | ($cr << 1) & 16 | ($cr << 3) & 32 | ($cr << 5) & 64 | ($cr << 7) & 128
+            );
+            $ret[]=$cr;
+        }   
+        
+        return  $ret;   
+    }
+    public  static  function addzero($in,$reorder=false){
+ 
+        $ret = array();
+
+       
+        if ($reorder !== true) {
+            $ret[]=0;
+        }
+        for ($i = 0; $i < count($in); $i++) {
+            $ret[]=$in[$i];
+        }
+
+        if ($reorder === true) {
+            $ret[]=0;
+            $ret = array_reverse($ret) ;
+        }
+        return $ret;       
+    }
+    
+    
 }
 

@@ -10,8 +10,7 @@
  class Cert {
     
  
-    
-    private $_cert;
+ 
     private $_publickey;
     
     public  static function load($cert) {
@@ -29,15 +28,29 @@
             ->number();
          $algo = $seq->at(2)->asSequence()->at(0)->asObjectIdentifier()->oid();  
          $pki = $seq->at(6)->asSequence();
-         $c->_publickey =$pki->at(1)->asBitString()->string() ;
-                                 
+         
+         $algo =$pki->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();  
+         $curveparam =$pki->at(0)->asSequence()->at(1)->asSequence()->at(0);  
+         $curve = new Curve($curveparam,true) ;
+         
+         $pkey =$pki->at(1)->asBitString()->string() ;
+         $a = Util::bstr2array($pkey) ;
+         $a = array_slice($a,2) ; 
+         $a = array_reverse($a) ; 
+      
+         
+         $p= Field::fromString(Util::array2hex($a),16,$curve) ;
   
-          return $c;
+         $c->_publickey  = $curve->expand($p) ;
+         
+        
+         return $c;
       
     }
 
     public function getPub(){
      
+        
        return  $this->_publickey;
     }
     
