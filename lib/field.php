@@ -22,7 +22,7 @@
        $f->value =  gmp_init($str,$base) ;
        
        $f->curve = $curve;
-       $i = $f->toIntArray()  ;
+       
        return $f;
         
    }

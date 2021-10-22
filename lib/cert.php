@@ -48,7 +48,7 @@
       
     }
 
-    public function getPub(){
+    public function pub(){
      
         
        return  $this->_publickey;

@@ -8,11 +8,17 @@
  
  class Pub  {
      
-   private $q;  
+   public $q;  
    public function __construct(Field $d ) {
-       $p = $f->curve->base->mul($d);
-       $this->q= $p->negate() ;
        
+     
+       $p = $d->curve->base->mul($d);
+ 
+    
+        $this->q= $p->negate() ;
+   
+    
+     
    }
    
    

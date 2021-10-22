@@ -181,6 +181,7 @@ class Hash
 
     private function step($H, $M) {
         $U = Util::alloc(32)  ;
+        $V = Util::alloc(32)  ;
         $S = $this->_S  ;
 
         $W = Hash::xor_blocks($H, $M);

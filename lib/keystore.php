@@ -10,15 +10,15 @@
       
  
    
-    public static function  load($keydata,$pass,$cert ) {
-         $cert = Cert::load($cert) ;  
+    public static function  load($keydata,$pass, Cert $cert ) {
+        
          $keys = array(); 
         
         
          $seq = \ASN1\Type\Constructed\Sequence::fromDER($keydata) ;
        //try  IIT
-    
-     
+      /*
+         
       try{   
          
          $uid = $seq->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
@@ -43,7 +43,7 @@
  
       
         //конвертим пароль
-        /*
+     
         $n=10000;
         $data = Util::str2array($pass)   ;
         $hash = new \PPOLib\Algo\Hash();
@@ -58,13 +58,13 @@
           $key = $hash->finish();
             
         }       
-          */
+          
        
         
       //  $key = Util::array2bstr($key) ;
          // file_put_contents(_ROOT . "data/convpass",$key) ;
-          $key2 = file_get_contents(_ROOT . "data/convpass" ) ;
-      $key = Util::bstr2array($key2) ;
+       //   $key2 = file_get_contents(_ROOT . "data/convpass" ) ;
+    //  $key = Util::bstr2array($key2) ;
          
          
          
@@ -89,7 +89,7 @@
          
          $privkey1 =  new Priv($param_d,$curveparams,true)  ; 
          $keys[]=$privkey1;
-          
+         
           
           $attr = $seq->at(3)->asTagged()->asImplicit(16)->asSequence()  ;
          
@@ -118,9 +118,10 @@
       }  catch( \Exception $e)  {
          $msg = $e->getMessage() ;
       }
-            
+        */ 
+      
       //try  pbes
-       /*
+      
       try{
           $keydata  =substr($keydata,57); //skip pfx header
           $seq = \ASN1\Type\Constructed\Sequence::fromDER($keydata) ;
@@ -200,8 +201,8 @@
             }
             
             
-      $key2 = Util::array2bstr($key) ;
-          file_put_contents(_ROOT . "data/convpass2",$key2) ;
+     // $key2 = Util::array2bstr($key) ;
+       //   file_put_contents(_ROOT . "data/convpass2",$key2) ;
        //  $key2 = file_get_contents(_ROOT . "data/convpass2" ) ;
      // $key = Util::bstr2array($key2) ;
              
@@ -221,7 +222,7 @@
             $parsed = Util::array2bstr($buf);
             
             
-      file_put_contents(_ROOT . "data/purekey2",$parsed);
+     // file_put_contents(_ROOT . "data/purekey2",$parsed);
      //  $parsed = file_get_contents(_ROOT . "data/purekey2" ) ;
               
             
@@ -232,10 +233,13 @@
                
              $param_d=  $seq->at(2)->asOctetString()->string();
               
-             $privkey1 =  new Priv($param_d,$curveparams)  ; 
+             $privkey1 =  new Priv($param_d,$curveparams,true)  ; 
+           
+           
+           
              $keys[]=$privkey1;
               
-             $c = count($seq);  
+             
           
                 
                   
@@ -249,15 +253,33 @@
             $m = $e->getMessage() ;
         }
          
-       */
-   
+       
+       
     
-       file_put_contents(_ROOT . "data/keys",serialize($keys));
-      // $keys = unserialize(file_get_contents(_ROOT . "data/keys2" ) );
+      // file_put_contents(_ROOT . "data/keys2",serialize($keys));
+      //  $keys = unserialize(file_get_contents(_ROOT . "data/keys2" ) );
       
     
-          $cert = Cert::load($cert) ;
-       //   $p = $cert->getPub() ;
+      
+   
+       $cp = $cert->pub();
+       
+      foreach($keys as $key) {
+          
+            $p1 =    $key->pub(); 
+         
+            
+   if($p1->q->isequal($cp))  {
+      file_put_contents(_ROOT . "data/key2",serialize($key));
+      break; 
+   }               
+                 
+      }
+ 
+         
+         
+       return;  
+         
        }
   }   
   
