@@ -8,6 +8,7 @@ use \ASN1\Type\Primitive\OctetString;
 use \ASN1\Type\Primitive\ObjectIdentifier;
 use \ASN1\Type\Constructed\Set;
 use \ASN1\Type\Primitive\Integer;
+use \ASN1\Type\Primitive\UTCTime;
 
 
 class PPO
@@ -31,46 +32,49 @@ class PPO
         $data =  new Sequence($dataid,$data) ;
         
         $algoid =  new ObjectIdentifier("1.2.804.2.1.1.1.1.2.1")    ;    //Gost34311
-        $algo =  new Sequence($algoid) ;
-        $algo =  new Set($algo) ;
+      
 
         $version = new Integer(1)    ;
         $algoidenc =  new ObjectIdentifier("1.2.804.2.1.1.1.1.3.1.1")    ;    //DSTU_4145_LE
-        $algoenc =  new Sequence($algoidenc) ;
-        $algoenc =  new Set($algoenc) ;
+       
 
         $cer  =    $cert->at(0)->asSequence() ;
      
         $cert_serial = $cer->at(1)->asInteger();  ;
         $cert_issuer  = $cer->at(3)->asSequence()  ;
-        $cert_issuer =   new ImplicitlyTaggedType(4,  $cert_issuer ) ;
        
-        $cv2 = new Sequence($cert_issuer,$cert_serial ) ;
+        $cert_issuer4 = new Sequence(  new ImplicitlyTaggedType(4,  new Sequence( $cert_issuer ) ));
+        $cv2 = new Sequence($cert_issuer4,$cert_serial ) ;
 
         //атрибуты для  подписи
-             //     
-    
+         
         $seq3 =  new Sequence( new Sequence(new ObjectIdentifier("1.2.804.2.1.1.1.1.2.1")), new OctetString($certhash) ,$cv2);
              
         $attr1 =  new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.47") ,new Set(new Sequence(new Sequence($seq3) ) )) ;
         $attr2 =  new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.3") ,new Set(new ObjectIdentifier("1.2.840.113549.1.7.1") )) ;
         $attr3 =  new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.4") ,new Set(new OctetString($hash) )) ;
-        $attr4;//TSC
+        $attr4 =  new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5") ,new Set(new UTCTime(new \DateTimeImmutable('1970-01-01 00:00:00 UTC')) )) ;
         
         
-        $attrs = new ImplicitlyTaggedType(0,new Sequence($attr1,$attr2,$attr3)) ;
+        $attrs = new ImplicitlyTaggedType(0,new Sequence($attr1,$attr2,$attr3,$attr4)) ;
         
         
         $derattrs =  $attrs->toDER() ;
+      
+        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs) ;
+        $ahash = Util::array2bstr($ahash) ;       
         
-        $sign = $derattrs; //подпись
+        $sign = $key->sign($ahash) ;
+        
+      
+        $sign = "0E469C8C9019155210E3F0C0C7D1807486598D1CED1A5851C3EA494A55DBDA54ADA02C…"; //подпись
         
         $sign = new OctetString($sign) ;        
-        $signerinfo = new Sequence($version,$algo,$cv2,$attrs,$algoenc,$sign ) ;
+        $signerinfo = new Sequence($version,new Sequence($cert_issuer,$cert_serial ) , new Sequence($algoid) ,$attrs,new Sequence($algoidenc),$sign ) ;
     
 
         $signerinfo =  new Set($signerinfo) ;
-        $signeddata = new Sequence($version,$algo,$data,$cert,$signerinfo) ;
+        $signeddata = new Sequence($version,new Set(new Sequence($algoid)),$data, new ImplicitlyTaggedType(0,new Sequence($cert))  ,$signerinfo) ;
         
         $signeddata =  new Sequence($signeddata) ;
         $signeddata = new ImplicitlyTaggedType(0,$signeddata) ;
