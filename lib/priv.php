@@ -24,7 +24,7 @@
        
        $this->d =   Field::fromString( Util::array2hex($d),16 ,$c) ;
         
-      $dd = $this->d->toString(16);
+       
        
    }
    
@@ -32,6 +32,11 @@
      
         
         return  new Pub($this->d);
+   }
+
+   public  function sign($message){
+        
+        return  ;
    }
    
  }

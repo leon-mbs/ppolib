@@ -15,13 +15,16 @@
        $p = $d->curve->base->mul($d);
  
     
-        $this->q= $p->negate() ;
+       $this->q= $p->negate() ;
    
     
      
    }
    
-   
+    public  function verify($message,$sign){
+        
+        return  ;
+   } 
    
  }
  

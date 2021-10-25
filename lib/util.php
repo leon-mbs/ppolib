@@ -110,73 +110,8 @@ class Util
         return $bstr;
     }
     
-    public static function sign($data ){
-      
-     
-        $request = curl_init();
-
-        curl_setopt_array($request, [
-            CURLOPT_PORT => 3106,
-            CURLOPT_URL =>  "127.0.0.1:3106/sign",
-            CURLOPT_POST => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_POSTFIELDS => $data
-        ]);
-
-        $return = json_decode(curl_exec($request));
-
-        if(curl_errno($request) > 0)
-           {
-                 
-             return false;
-             
-           }  
-         
-
-        curl_close($request);
-
-        return $return;
-    }
- 
   
-  
-    public static function decrypt1($data ){
-      
-  
-  
-        $request = curl_init();
-
-        curl_setopt_array($request, [
-            CURLOPT_PORT => 3000,
-            CURLOPT_URL =>  "localhost:3000/decrypt",
-            CURLOPT_POST => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_POSTFIELDS => base64_encode($data)    
-        ]);
-
-        $return =  (curl_exec($request));
-
-        if(curl_errno($request) > 0)
-           {
-                
-             return false;
-             
-           }           
-
-        curl_close($request);
-
-        return $return;
-    }
- 
-     
+    /*
     
     public static function convert_password($pass,$n=10000){
         $data = Util::str2array($pass)   ;
@@ -194,7 +129,7 @@ class Util
         }
         return $ret;
     }   
-    
+    */
     
     public  static  function invert($in){
       

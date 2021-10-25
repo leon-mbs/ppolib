@@ -12,13 +12,15 @@
  
  
     private $_publickey;
+    private $_raw;
+     
     
     public  static function load($cert) {
            
          
       
           $c = new  Cert();
-          
+          $c->_raw  = $cert; 
           $seq = \ASN1\Type\Constructed\Sequence::fromDER($cert) ;
           $seq  =    $seq->at(0)->asSequence() ;
 
@@ -52,6 +54,19 @@
      
         
        return  $this->_publickey;
+    }
+    public function getAsn1(){
+     
+        
+       return     \ASN1\Type\Constructed\Sequence::fromDER($this->_raw) ;
+    
+    }
+    public function getHash(){
+         $hash = \PPOLib\Algo\Hash::gosthash($this->_raw) ;
+      
+        
+       return   $hash ;
+    
     }
     
  }

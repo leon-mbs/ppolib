@@ -57,14 +57,7 @@
            $le_base =  $base->toString(16);
            $le_order =   $this->order->toString(16);
            
-           
-  //"2a29ef207d0e9b6c55cd260b306c7e007ac491ca1b10c62334a9e8dcd8d20fb6"
-  
-  //"4440441545504001551005441451450111150510414004505001450155400001544501041015044014501005014040505104441544051505140510400554514"
-        // $mm =   $base->mul($base) ;
-        // $h = $mm->toString(16) ;
-        // $dd =  $mm->div($base)  ;
-        // $hw = $dd[0]->toString(16) ;
+ 
        
          $this->base = $this->expand($base) ;
     
@@ -83,21 +76,19 @@
           }
           $x2 = $x->mulmod($x)  ;
           $y = $x2->mulmod($x);
- $hyiee = $y->toString(16) ;            
+             
           if(1==(int)$this->a) {
              $y = $y->add($x2); 
           }
-    $hyieww = $y->toString(16) ;       
-    $hyiewwb = $x2->toString(16) ;       
+        
           $y = $y->add($this->b); 
-         $hyibbbb = $this->b->toString(16) ;  
-         $hyi = $y->toString(16) ;  
+  
           $x2inv=$x2->invert();
           $y = $y->mulmod($x2inv); 
           
-          $hy1 = $y->toString(16) ; 
+       
           $y = $this->fsquad($y);   
-          $hy2 = $y->toString(16) ; 
+         
           $trace = $y->trace();
           if( (0==(int)$trace  && 1==(int)$bit)||(1==(int)$trace  && 0==(int)$bit)) {
               $y->setBit(0,1) ;   
@@ -113,10 +104,7 @@
  
   public function fsquad(Field $v ) {
       $mod = $this->getModulo()  ;
-      if ($mod->testbit(0)!=1) {
- 
-        throw new \Exception("only odd modulus is supported");
-      }
+    
     $hv = $v->toString(16) ;
   $bitl_m = $this->m;
   $range_to = ($bitl_m - 1) / 2;

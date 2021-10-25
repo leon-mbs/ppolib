@@ -6,7 +6,7 @@
  namespace   PPOLib   ;
  
   
- use \PPOLib\Util ;
+ 
   
    
  class  Field   
@@ -53,10 +53,11 @@
         
         return gmp_cmp($this->value,$v->value);
    } 
+  
+  /*
    public function toByteArray(  ) 
    {
-        $s =  $this->toString(16);
-        
+          
        return  Util::hex2array($s) ;
    } 
    public function toIntArray(  ) 
@@ -92,7 +93,7 @@
         return $value;
         
    } 
-   
+    */
    
    public function clone(){
      

@@ -105,8 +105,8 @@
          return   ( $this->x->compare($p->x)==0) &&  ( $this->y->compare($p->y) ==0);   
      }
      public function iszero(){
-         $z = Field::get0() ;
-         return   ( $this->x->compare($z)==0) &&  ( $this->y->compare($z) ==0);   
+         
+         return   ( $this->x->is0()) &&  ( $this->y->is0());   
      }
       
  }

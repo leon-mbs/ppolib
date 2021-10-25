@@ -118,10 +118,7 @@ class Hash
 
         $ret = $hash->finish();
 
-
-        $strings = array_map("chr", $ret);
-
-        return implode("", $strings);
+        return $ret;
     }
 
    public function update32($block32) {
