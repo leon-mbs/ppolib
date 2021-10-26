@@ -269,11 +269,11 @@
             $p1 =    $key->pub(); 
          
             
-   if($p1->q->isequal($cp))  {
-      file_put_contents(_ROOT . "data/key2",serialize($key));
-     
-      break; 
-   }               
+           if($p1->q->isequal($cp->q))  {
+              file_put_contents(_ROOT . "data/key2",serialize($key));
+             
+              break; 
+           }               
                  
       }
  

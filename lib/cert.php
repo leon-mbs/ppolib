@@ -52,8 +52,8 @@
 
     public function pub(){
      
-        
-       return  $this->_publickey;
+        $pub = new Pub($this->_publickey);
+       return  $pub ;
     }
     public function getAsn1(){
      

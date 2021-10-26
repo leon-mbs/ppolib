@@ -36,8 +36,23 @@ spl_autoload_register('lib_autoload');
 
       $cert =  file_get_contents(_ROOT . "data/cert" );
       $cert = unserialize($cert   ) ;
-      $key = file_get_contents(_ROOT . "data/key2");
-      $key = unserialize($key) ;
+       $key = file_get_contents(_ROOT . "data/key2");
+       $key = unserialize($key) ;
 
-     $ms=  \PPOLib\PPO::sign("{\"Command\":\"Objects\"}",$key,$cert);
-      file_put_contents(_ROOT . "data/newsign",$ms);
+     //$ms=  \PPOLib\PPO::sign("{\"Command\":\"Objects\"}",$key,$cert);
+   //   file_put_contents(_ROOT . "data/newsign",$ms);
+      
+      
+   //$dd =  \PPOLib\PPO::send($ms,'cmd')  ;
+   
+      $ms=  file_get_contents(_ROOT . "data/newsign");
+      $ms=  file_get_contents( "z:/home/local.gost/www/signedanswer");
+      
+      
+      
+     \PPOLib\PPO::decrypt($ms) ;
+      
+   
+   $ret="";
+   
+  

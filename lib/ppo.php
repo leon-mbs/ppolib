@@ -59,7 +59,7 @@ class PPO
         $attrs = new ImplicitlyTaggedType(0,new Sequence($attr1,$attr2,$attr3,$attr4)) ;
         
         
-        $derattrs =  $attrs->toDER() ;
+        $derattrs = (new Set($attr1,$attr2,$attr3,$attr4))->toDER() ;
       
         $ahash = \PPOLib\Algo\Hash::gosthash($derattrs) ;
         $ahash = Util::array2bstr($ahash) ;       
@@ -67,7 +67,7 @@ class PPO
         $sign = $key->sign($ahash) ;
         
       
-        $sign = "0E469C8C9019155210E3F0C0C7D1807486598D1CED1A5851C3EA494A55DBDA54ADA02C…"; //подпись
+      //  $sign = "0E469C8C9019155210E3F0C0C7D1807486598D1CED1A5851C3EA494A55DBDA54ADA02C…"; //подпись
         
         $sign = new OctetString($sign) ;        
         $signerinfo = new Sequence($version,new Sequence($cert_issuer,$cert_serial ) , new Sequence($algoid) ,$attrs,new Sequence($algoidenc),$sign ) ;
@@ -85,7 +85,7 @@ class PPO
         return $result->toDER() ;          
       }     
     
-       public static function verify($message,$onlydata=false){
+       public static function decrypt($message,$onlydata=false){
           
           $der =  Sequence::fromDER($message)  ;   
           $ctype = $der->at(0)->asObjectIdentifier()->oid() ;
@@ -94,9 +94,7 @@ class PPO
         
           $sq5  =  $der->at(1)->asTagged()->asImplicit(16)->asSequence()  ;
           $sq5 = $sq5->at(0)->asSequence() ;
-          
-          $v =  $sq5->at(0)->asInteger()->number()   ;
-          
+       
           //1.2.804.2.1.1.1.1.2.1
           $algo = $sq5->at(1)->asSet() ;
           $algo = $algo->at(0)->asSequence()   ;
@@ -110,14 +108,18 @@ class PPO
           if($ctype=="1.2.840.113549.1.7.1"){   //data 
             $sqxml =  $sqdata->at(1)->asTagged()->asImplicit(16)->asSequence()  ;    
             $xml =  $sqxml->at(0)->asOctetString()->string()  ;
-                     
+            if($onlydata) {
+                return  $xml;
+            }        
           }
          
           //cert
-         // $sqcert =  $sq5->at(3)->asTagged()->asImplicit(16)->asSequence()  ;
-         // $cert = $sqcert->at(0)->asSequence() ;
+          $sqcert =  $sq5->at(3)->asTagged()->asImplicit(16)->asSequence()  ;
+          $dercert = $sqcert->at(0)->asSequence()->toDer();
          
-         // $tbscert = $cert->at(0)->asSequence()  ;
+         $cert= \PPOLib\Cert::load($dercert) ;
+         
+        //  $tbscert = $sqcert->at(0)->asSequence()  ;
          
          
          
@@ -128,24 +130,38 @@ class PPO
           
        $v = $signerinfo->at(0)->asInteger()->number()   ;
        
-       $ci = $signerinfo->at(1)->asSequence() ;
+      // $ci = $signerinfo->at(1)->asSequence() ;
+      // 
+      // $cidata=      $ci->at(0)->asSequence() ;
        
-       $cidata=      $ci->at(0)->asSequence() ;
-       
-       $sn=  $ci->at(1)->asInteger()->number(); ;
+      // $sn=  $ci->at(1)->asInteger()->number(); ;
        
        //Gost34311        1 2 804 2 1 1 1 1 2 1"
-       $cda = $signerinfo->at(2)->asSequence()->at(0)->asObjectIdentifier()->oid();
+     //  $cda = $signerinfo->at(2)->asSequence()->at(0)->asObjectIdentifier()->oid();
        
        //attr
-       $a = $signerinfo->at(3)->asTagged()->asImplicit(16)->asSequence()    ;
-      
-          //Dstu4145le       1 2 804 2 1 1 1 1 3 1 1
-          $signalgo =   $signerinfo->at(4)->asSequence()->at(0)->asObjectIdentifier()->oid() ;
+        $a = $signerinfo->at(3)->asTagged()->asImplicit(16)->asSequence()    ;
+    
+        $c = count($a);   
         
-          $signature  =  $signerinfo->at(5)->asOctetString()->string()   ;
+        $derattrs = (new Set($a->at(0)->asSequence(),$a->at(1)->asSequence(),$a->at(2)->asSequence(),$a->at(3)->asSequence()))->toDER() ;
+      
+        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs) ;
+        $ahash = Util::array2bstr($ahash) ;      
+      
+      
+        $signature  =  $signerinfo->at(5)->asOctetString()->string()   ;
        
-          $s =   Util::bstr2array($signature)   ;         
+       
+      $b=  $cert->pub()->verify($ahash,$signature);
+        
+        
+        if($b) {
+            return  $xml;
+        } else {
+            return "";
+        }
+                   
       }  
          
          

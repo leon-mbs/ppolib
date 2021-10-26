@@ -96,7 +96,8 @@
           
           $y = $y->mulmod($x);
           $h23 = $y->toString(16) ;    
-          
+          $x->curve = $this;
+          $y->curve = $this;
           
  
           return  new Point($x,$y) ;
@@ -145,6 +146,28 @@
           return $m;
           
       }
+      public function random(){
           
+          $r = new Field();
+          $r->value =  gmp_random() ;
+          $r->curve = $this;
+          $r = $this->truncate($r);
+       
+          return  $r;
+          
+      }     
+      
+   public function truncate($value) {
+    $bitl_o = $this->order->getLength();
+
+    $xbit = $value->getLength();
+    $ret = $value->clone();
+    while ($bitl_o <= $xbit) {
+      $ret->setBit($xbit - 1,0);
+      $xbit = $ret->getLength();
+    }
+    return $ret->clone();
+  }      
+        
  }      
  

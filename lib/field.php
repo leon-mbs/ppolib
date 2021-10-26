@@ -233,7 +233,7 @@
    }   
  public   function is0()  {
         
-       $s = $this->value->toString(2);
+       $s = $this->toString(2);
        
        
        return $s=='0'; 

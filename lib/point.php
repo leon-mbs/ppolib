@@ -22,10 +22,10 @@
  
  
      public function add(Point $p){
-        $hx = $p->x->toString(16);
-        $hy = $p->y->toString(16);
+      
+ 
         $a = Field::fromInt($this->x->curve->a,$this->x->curve); 
-       $pz = new Point(  Field::get0(), Field::get0());
+       $pz = new Point(  Field::get0($this), Field::get0($this));
 
    $x0 = $this->x->clone();;
    $y0 = $this->y->clone();;
@@ -72,7 +72,7 @@
         return $pz; 
      }    
      public function mul(Field $f){
-         $pz = new Point(  Field::get0(), Field::get0());
+         $pz = new Point(  Field::get0($f->curve), Field::get0($f->curve));
 
         $p = $this->clone() ;
       $hx =  $p->x->toString(16);   
