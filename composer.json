@@ -3,16 +3,6 @@
 
         "php": ">=7.2",
  
-     
-    
-        "mdanter/ecc": "*" ,
-    
-        "sop/crypto-encoding": "*" ,
-        "vakata/asn1": "*" ,
-        "sop/crypto-util": "*" ,
-        "phpseclib/phpseclib": "*" ,
-      
-        "sop/x509": "*" ,
         "sop/asn1": "*" 
 
     }  

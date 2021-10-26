@@ -46,7 +46,7 @@ spl_autoload_register('lib_autoload');
    //$dd =  \PPOLib\PPO::send($ms,'cmd')  ;
    
       $ms=  file_get_contents(_ROOT . "data/newsign");
-      $ms=  file_get_contents( "z:/home/local.gost/www/signedanswer");
+   //  $ms=  file_get_contents( "z:/home/local.gost/www/signedanswer");
       
       
       
