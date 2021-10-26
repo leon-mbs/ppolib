@@ -1,25 +1,25 @@
 <?php
 
-namespace   PPOLib\Algo ;
+namespace PPOLib\Algo;
 
-use \PPOLib\Util ;
+use \PPOLib\Util;
 
 class Hash
 {
 
-    private $left = array();
-    private $len = 0;
-    private $U = array();
-    private $W = array();
-    private $V = array();
-    private $_S = array();
-    private $Key = array();
+    private $left  = array();
+    private $len   = 0;
+    private $U     = array();
+    private $W     = array();
+    private $V     = array();
+    private $_S    = array();
+    private $Key   = array();
     private $c8buf = array();
-    private $H = array();
-    private $S = array();
-    private $buf = array();
+    private $H     = array();
+    private $S     = array();
+    private $buf   = array();
 
-    private  $ab2=array();
+    private $ab2 = array();
 
     public function __construct() {
 
@@ -30,22 +30,28 @@ class Hash
         $this->ab2 = Util::alloc(4);
     }
 
-    
-    private function _n($b){
-        if(is_array($b)){
-           $a = array(); 
-           foreach($b as $e){
-             if($e<0) $a[] = 256 + $e;
-             else $a[] = $e;
-             
-           } 
-           
-           return  $a;
+
+    private function _n($b) {
+        if (is_array($b)) {
+            $a = array();
+            foreach ($b as $e) {
+                if ($e < 0) {
+                    $a[] = 256 + $e;
+                } else {
+                    $a[] = $e;
+                }
+
+            }
+
+            return $a;
         }
-        
-        
-        if($b<0) return  256 + $b;
-        else return $b;
+
+
+        if ($b < 0) {
+            return 256 + $b;
+        } else {
+            return $b;
+        }
     }
 
     public function update($block) {
@@ -54,8 +60,8 @@ class Hash
         for ($i = 0; $i < count($block); $i++) {
             $block32[$i] = $block[$i];
         }
-        $off=0;
-        while (count($block) - $off >= 32) {
+        $off = 0;
+        while(count($block) - $off >= 32) {
             $this->H = Hash::step($this->H, $block32);
             $this->S = Hash::add_blocks(32, $this->S, $block32);
             $off += 32;
@@ -81,7 +87,7 @@ class Hash
                 $buf[$idx] = $this->left[$idx];
             }
             $this->H = $this->step($this->H, $buf);
-            $this->S= Hash::add_blocks(32, $this->S, $buf);
+            $this->S = Hash::add_blocks(32, $this->S, $buf);
             $fin_len += count($this->left);
             $this->left = array();
 
@@ -89,9 +95,9 @@ class Hash
                 $buf[$idx] = 0;
             }
         }
-        $fin_len <<=3;
+        $fin_len <<= 3;
         $idx = 0;
-        while ($fin_len > 0) {
+        while($fin_len > 0) {
             $buf[$idx++] = $fin_len & 0xff;
             $fin_len >>= 8;
         }
@@ -121,13 +127,13 @@ class Hash
         return $ret;
     }
 
-   public function update32($block32) {
-            $this->H = Hash::step($this->H, $block32);
-            $this->S = Hash::add_blocks(32, $this->S, $block32);
-            $this->len += 32;
-          
-   }
-   
+    public function update32($block32) {
+        $this->H = Hash::step($this->H, $block32);
+        $this->S = Hash::add_blocks(32, $this->S, $block32);
+        $this->len += 32;
+
+    }
+
     private static function xor_blocks($a, $b) {
         $ret = array();
         for ($i = 0; $i < count($a); $i++) {
@@ -146,7 +152,7 @@ class Hash
         return $k;
     }
 
-    private static function circle_xor8($w,$k) {
+    private static function circle_xor8($w, $k) {
         $c8buf = Util::alloc(8);
         for ($i = 0; $i < 8; $i++) {
             $c8buf[$i] = $w[$i];
@@ -166,32 +172,32 @@ class Hash
             ($data[0] ^ $data[2] ^ $data[4] ^ $data[6] ^ $data[24] ^ $data[30]) |
             (($data[1] ^ $data[3] ^ $data[5] ^ $data[7] ^ $data[25] ^ $data[31]) << 8);
 
-      //  for ($i = 0; $i < 30; $i++) {
-      //      $data[$i] = $data[$i + 2];
-     //   }   //optimize
-        
-        $data = array_slice($data,2);
+        //  for ($i = 0; $i < 30; $i++) {
+        //      $data[$i] = $data[$i + 2];
+        //   }   //optimize
+
+        $data = array_slice($data, 2);
         $data[30] = $t16 & 0xff;
         $data[31] = Util::rrr($t16, 8);
         return $data;
     }
 
     private function step($H, $M) {
-        $U = Util::alloc(32)  ;
-        $V = Util::alloc(32)  ;
-        $S = $this->_S  ;
+        $U = Util::alloc(32);
+        $V = Util::alloc(32);
+        $S = $this->_S;
 
         $W = Hash::xor_blocks($H, $M);
-        $Key = Hash::swap_bytes($W );
+        $Key = Hash::swap_bytes($W);
         $gost = new Gost();
         $gost->key($Key);
         $_S = $gost->crypt64($H);
         for ($i = 0; $i < 8; $i++) {
-            $S[$i ] = $_S[$i];
+            $S[$i] = $_S[$i];
         }
-        $U = Hash::circle_xor8($H,$U);
-        $V = Hash::circle_xor8($M,$V);
-        $V = Hash::circle_xor8($V,$V);
+        $U = Hash::circle_xor8($H, $U);
+        $V = Hash::circle_xor8($M, $V);
+        $V = Hash::circle_xor8($V, $V);
         $W = Hash::xor_blocks($U, $V);
         $Key = Hash::swap_bytes($W);
         $gost->key($Key);
@@ -199,8 +205,8 @@ class Hash
         for ($i = 0; $i < 8; $i++) {
             $S[$i + 8] = $_S[$i];
         }
-        $U = Hash::circle_xor8($U,$U);
-        $U[31] = ~$U[31] ;
+        $U = Hash::circle_xor8($U, $U);
+        $U[31] = ~$U[31];
         $U[29] = ~$U[29];
         $U[28] = ~$U[28];
         $U[24] = ~$U[24];
@@ -216,21 +222,21 @@ class Hash
         $U[5] = ~$U[5];
         $U[3] = ~$U[3];
         $U[1] = ~$U[1];
-        
+
         $U = $this->_n($U);
-        
-        $V = Hash::circle_xor8($V,$V);
-        $V = Hash::circle_xor8($V,$V);
+
+        $V = Hash::circle_xor8($V, $V);
+        $V = Hash::circle_xor8($V, $V);
         $W = Hash::xor_blocks($U, $V);
         $Key = Hash::swap_bytes($W);
         $gost->key($Key);
         $_S = $gost->crypt64(array_slice($H, 16, 8));
         for ($i = 0; $i < 8; $i++) {
-           $S[$i + 16] = $_S[$i];
+            $S[$i + 16] = $_S[$i];
         }
-        $U = Hash::circle_xor8($U,$U);
-        $V = Hash::circle_xor8($V,$V);
-        $V = Hash::circle_xor8($V,$V);
+        $U = Hash::circle_xor8($U, $U);
+        $V = Hash::circle_xor8($V, $V);
+        $V = Hash::circle_xor8($V, $V);
         $W = Hash::xor_blocks($U, $V);
         $Key = Hash::swap_bytes($W);
         $gost->key($Key);
@@ -264,8 +270,8 @@ class Hash
         return $H;
     }
 
-    private function add_blocks($n,  $left, $right) {
-      
+    private function add_blocks($n, $left, $right) {
+
         $this->ab2[2] = 0;
         $this->ab2[3] = 0;
 
@@ -277,7 +283,7 @@ class Hash
             $this->ab2[3] = Util::rrr($this->ab2[2], 8);
         }
 
-       // return $this->ab2[3];
+        // return $this->ab2[3];
         return $left;
     }
 
