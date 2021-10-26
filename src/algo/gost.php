@@ -1,17 +1,17 @@
 <?php
 
-namespace PPOLib\Algo;
+namespace   PPOLib\Algo ;
 
-use \PPOLib\Util;
+use \PPOLib\Util ;
 
 class Gost
 {
-    public $k     = array();
-    public $k87   = array();
-    public $k65   = array();
-    public $k43   = array();
-    public $k21   = array();
-    public $n     = array();
+    public $k = array();
+    public $k87 = array();
+    public $k65 = array();
+    public $k43 = array();
+    public $k21 = array();
+    public $n = array();
     public $gamma = array();
 
 
@@ -23,9 +23,9 @@ class Gost
     public function boxinit($box) {
         for ($i = 0; $i < 256; $i++) {
             //$r = Util::rrr($i, 4);    //optimize
-            $r = $i >> 4;
-
-
+            $r = $i>>4;
+            
+            
             $this->k87[$i] = (($box->k8[$r] << 4) | $box->k7[$i & 15]) << 24;
             $this->k65[$i] = (($box->k6[$r] << 4) | $box->k5[$i & 15]) << 16;
             $this->k43[$i] = (($box->k4[$r] << 4) | $box->k3[$i & 15]) << 8;
@@ -39,26 +39,26 @@ class Gost
 
         for ($i = 0, $j = 0; $i < 8; $i++, $j += 4) {
             $this->k[$i] = $k[$j] | ($k[$j + 1] << 8) | ($k[$j + 2] << 16) | ($k[$j + 3] << 24);
-            if ($this->k[$i] < 0) {
-                $this->k[$i] = 0xFFFFFFFF + 1 + $this->k[$i];
+            if($this->k[$i] <0) {
+               $this->k[$i]  = 0xFFFFFFFF+ 1 + $this->k[$i] ;
             }
         }
     }
 
     public function pass($x) {
-        /*  $x =
-              $this->k87[Util::rrr($x, 24) & 255] |
-              $this->k65[Util::rrr($x, 16) & 255] |
-              $this->k43[Util::rrr($x, 8) & 255] |
-              $this->k21[$x & 255];          //optimize
-            */
-        $x =
+      /*  $x =
+            $this->k87[Util::rrr($x, 24) & 255] |
+            $this->k65[Util::rrr($x, 16) & 255] |
+            $this->k43[Util::rrr($x, 8) & 255] |
+            $this->k21[$x & 255];          //optimize
+          */
+      $x =
             $this->k87[($x >> 24) & 255] |
             $this->k65[($x >> 16) & 255] |
             $this->k43[($x >> 8) & 255] |
             $this->k21[$x & 255];
-
-
+        
+        
         /* Rotate left 11 bits */
 
 
@@ -76,7 +76,7 @@ class Gost
         $out = array();
         $idx = 0;
 
-        while($idx < $blocks) {
+        while ($idx < $blocks) {
             $off = $idx++ * 8;
             $block = array_slice($clear, $off, 8);
             $outblock = $this->crypt64($block);
@@ -91,7 +91,7 @@ class Gost
 
     }
 
-    public function crypt64($clear) {
+    public function crypt64($clear ) {
         $n = array();
         $n[0] = $clear[0] | ($clear[1] << 8) | ($clear[2] << 16) | ($clear[3] << 24);
         $n[1] = $clear[4] | ($clear[5] << 8) | ($clear[6] << 16) | ($clear[7] << 24);
@@ -150,7 +150,7 @@ class Gost
         $out = array();
 
 
-        while($blocks--) {
+        while ($blocks--) {
             $off = $blocks * 8;
             $block = array_slice($cypher, $off, 8);
             $outblock = $this->decrypt64($block);
@@ -218,49 +218,49 @@ class Gost
         return $out;
     }
 
-    public function decrypt_cfb($iv, $data) {
-        $this->gamma = Util::alloc(8);
-        $cur_iv = Util::alloc(8);
-
-
-        for ($idx = 0; $idx < 8; $idx++) {
+    public function decrypt_cfb($iv,$data ){
+        $this->gamma = Util::alloc(8) ;
+        $cur_iv = Util::alloc(8) ;
+    
+    
+        for ($idx=0; $idx < 8; $idx++) {
             $cur_iv[$idx] = $iv[$idx];
-        }
-
-        $blocks = ceil(count($data) / 8);
-        $clear = Util::alloc($blocks * 8);
-
-        $idx = 0;
-        $off = 0;
-        while($idx < $blocks) {
+        }        
+        
+        $blocks = ceil(count($data)/8) ;
+        $clear =  Util::alloc($blocks * 8);
+        
+        $idx=0;
+        $off=0;
+        while ($idx < $blocks) {
             $off = $idx++ * 8;
-            $res = $this->decrypt64_cfb($cur_iv, array_slice($data, $off, 8));
-            $cur_iv = $res[1];
-            for ($i = 0; $i < 8; $i++) {
-                $clear[$off + $i] = $res[0][$i];
+            $res= $this->decrypt64_cfb($cur_iv, array_slice($data,$off,  8)  );
+            $cur_iv = $res[1] ;
+            for($i=0;$i<8;$i++) {
+               $clear[$off+$i]=$res[0][$i]; 
             }
-
-
-        }
-
-
+           
+               
+        }      
+        
+        
         return $clear;
-    }
-
-    public function decrypt64_cfb($iv, $data) {
-
-        $clear = Util::alloc(8);
-        $this->gamma = $this->crypt64($iv);
+    }   
+    
+    public function decrypt64_cfb($iv,$data){
+      
+        $clear =  Util::alloc( 8);
+        $this->gamma = $this->crypt64($iv );
         for ($j = 0; $j < 8; $j++) {
             $iv[$j] = $data[$j];
             $clear[$j] = $data[$j] ^ $this->gamma[$j];
-        }
-
-        return array($clear, $iv);
-
-    }
-
-
+        }  
+        
+        return array( $clear,$iv);
+                 
+    }    
+    
+    
 }
 
 
