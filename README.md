@@ -9,6 +9,7 @@ composer require leon-mbs/ppolib
 Распаковка  ключа  и сертификата
    
    $cert =    \PPOLib\Cert::load($certdata) ;
+   
    $key =   \PPOLib\KeyStore::load($keydata,$password,$cert ) ;
 
    Где
@@ -16,7 +17,7 @@ composer require leon-mbs/ppolib
    $keydata - содержимое файла ключа
    $password - пароль  к  ключу
    
-   Поскольку  распаковка  присходит  довольно  медленно, обьекты     $cert и $key  следует 
+   Поскольку  распаковка  происходит  довольно  медленно, обьекты     $cert и $key  следует 
    положить  в  сессию  или  сериализовать  и спрятать в  надежном  хранилище для дальнейшего использования
    
    

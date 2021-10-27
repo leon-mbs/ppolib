@@ -1,10 +1,13 @@
 <?php
 
-namespace   PPOLib ;
+namespace PPOLib;
 
-use \PPOLib\Algo\Hash ; 
- 
- // вспомагательный функции
+use \PPOLib\Algo\Hash;
+
+
+/**
+* вспомогательный функции
+*/
 class Util
 {
 
@@ -20,27 +23,24 @@ class Util
             for ($i = 0; $i < $c; $i++) {
                 $a = array_merge($a, array(0));
             }
-
         }
 
         return $a;
     }
 
-
     public static function array2hex($a) {
-      
-         $ss = "";
-         foreach($a as $v){
+
+        $ss = "";
+        foreach ($a as $v) {
             $ss .= sprintf("%02X", $v);
-            
-         }
+        }
         return $ss;
     }
 
     //аналог >>>
     public static function rrr($a, $b) {
         if ($b >= 32 || $b < -32) {
-            $m = (int)($b / 32);
+            $m = (int) ($b / 32);
             $b = $b - ($m * 32);
         }
 
@@ -63,7 +63,6 @@ class Util
         return $a;
     }
 
-
     public static function str2array($str, $to8 = false) {
         $a = unpack('C*', $str);
 
@@ -73,13 +72,11 @@ class Util
             for ($i = 0; $i < $c; $i++) {
                 $a = array_merge($a, array(0));
             }
-
         }
         return $a;
     }
 
-
-    public static function alloc($length,$v=0) {
+    public static function alloc($length, $v = 0) {
         $a = array();
         for ($i = 0; $i < $length; $i++) {
             $a[$i] = $v;
@@ -90,7 +87,7 @@ class Util
     public static function bstr2array($str, $to8 = false) {
         $a = array();
         foreach (str_split($str, 1) as $c) {
-         
+
             $a[] = ord($c);
         }
 
@@ -100,71 +97,67 @@ class Util
             for ($i = 0; $i < $c; $i++) {
                 $a = array_merge($a, array(0));
             }
-
         }
         return $a;
     }
 
-    public static function  array2bstr($array ) {
-    
-        $bstr  = pack('H*',Util::array2hex($array)  );; 
+    public static function array2bstr($array) {
+
+        $bstr = pack('H*', Util::array2hex($array));
+        ;
         return $bstr;
     }
-    
-  
+
     /*
-    
-    public static function convert_password($pass,$n=10000){
-        $data = Util::str2array($pass)   ;
-        $hash = new Hash();
-        $hash->update($data);
 
-        $ret = $hash->finish();
-        $n--;
-        while($n--){
-          $hash = new Hash();
-          $hash->update32($ret);
+      public static function convert_password($pass,$n=10000){
+      $data = Util::str2array($pass)   ;
+      $hash = new Hash();
+      $hash->update($data);
 
-          $ret = $hash->finish();
-            
-        }
-        return $ret;
-    }   
-    */
-    
-    public  static  function invert($in){
-      
-      $ret = array();
+      $ret = $hash->finish();
+      $n--;
+      while($n--){
+      $hash = new Hash();
+      $hash->update32($ret);
+
+      $ret = $hash->finish();
+
+      }
+      return $ret;
+      }
+     */
+
+    public static function invert($in) {
+
+        $ret = array();
         for ($i = count($in) - 1; $i >= 0; $i--) {
             $cr = $in[$i];
             $cr = (
-                $cr >> 7          | ($cr >> 5) &  2 | ($cr >> 3) &  4 | ($cr >> 1) & 8
-                | ($cr << 1) & 16 | ($cr << 3) & 32 | ($cr << 5) & 64 | ($cr << 7) & 128
-            );
-            $ret[]=$cr;
-        }   
-        
-        return  $ret;   
+                    $cr >> 7 | ($cr >> 5) & 2 | ($cr >> 3) & 4 | ($cr >> 1) & 8 | ($cr << 1) & 16 | ($cr << 3) & 32 | ($cr << 5) & 64 | ($cr << 7) & 128
+                    );
+            $ret[] = $cr;
+        }
+
+        return $ret;
     }
-    public  static  function addzero($in,$reorder=false){
- 
+
+    public static function addzero($in, $reorder = false) {
+
         $ret = array();
 
-       
         if ($reorder !== true) {
-            $ret[]=0;
+            $ret[] = 0;
         }
         for ($i = 0; $i < count($in); $i++) {
-            $ret[]=$in[$i];
+            $ret[] = $in[$i];
         }
 
         if ($reorder === true) {
-            $ret[]=0;
-            $ret = array_reverse($ret) ;
+            $ret[] = 0;
+            $ret = array_reverse($ret);
         }
-        return $ret;       
+        return $ret;
     }
-    
-    
-}
 
+}
