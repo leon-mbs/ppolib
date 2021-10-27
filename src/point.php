@@ -6,7 +6,9 @@
   
  use \PPOLib\Util ;
   
- 
+ /**
+ * точка на  элиптической кривой
+ */
  class  Point
  {
       public $x;

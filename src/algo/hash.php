@@ -3,7 +3,7 @@
 namespace   PPOLib\Algo ;
 
 use \PPOLib\Util ;
-
+// хещирование  согласно  гост89
 class Hash
 {
 

@@ -4,6 +4,7 @@ namespace   PPOLib ;
 
 use \PPOLib\Algo\Hash ; 
  
+ // вспомагательный функции
 class Util
 {
 

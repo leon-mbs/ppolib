@@ -1,14 +1,10 @@
 <?php
-  
- 
-  
  
  namespace   PPOLib   ;
- 
   
- 
-  
-   
+/**
+* элемент  поля  Галуа   
+*/
  class  Field   
  { 
     public $curve=null;  
@@ -54,46 +50,7 @@
         return gmp_cmp($this->value,$v->value);
    } 
   
-  /*
-   public function toByteArray(  ) 
-   {
-          
-       return  Util::hex2array($s) ;
-   } 
-   public function toIntArray(  ) 
-   {
-        $u8=  $this->toByteArray();
-       
-        $in_value=array();
-        $in_value[0]=0;
-        foreach($u8 as $i=>$v) {
-           $in_value[$i+1]=$v; 
-        }
-    
-        $value=array();
-        $bpos=0;
-        $vidx=0;
-        
-        
-        for($idx=count($in_value)-1; $idx >= 0; $idx-- ) {
-            $code = $in_value[$idx];
-            $bpos = $bpos % 4;
-
-            if ($code < 0) {
-                $code = 256 + $code;
-            }
-            $value[$vidx] |= $code << ($bpos*8);
-            if( $value[$vidx]<0) {
-                 $value[$vidx]  = 0x100000000 +  $value[$vidx];
-            }
-            if($bpos === 3) $vidx++;
-            $bpos++;
-        }        
-        
-        return $value;
-        
-   } 
-    */
+ 
    
    public function clone(){
      
@@ -171,50 +128,7 @@
        
        
    }
-   /*
-   public function _mul($v){
-      $k1 = $this->KoefArray();
-      $k2 = $v->KoefArray();
-      $kout =   Util::alloc(count($k1)+count($k2)) ;
-
-      for($i1 = 0;$i1<count($k1) ;$i1++){
-          if($k1[$i1]==0) continue ;
-          for($i2 =0;$i2< count($k2) ;$i2++){
-              if($k2[$i2]==0) continue ;
-              $i = $i1+$i2;
-              if($kout[$i]==1) {
-                 $kout[$i]=0; 
-              }   else {
-                  $kout[$i]=1;
-              }
-              
-          }
-      }
-      
-      $kout = array_reverse($kout)  ;
-      
-      $f =   self::FromKoefArray($kout);
-      $f->curve = $this->curve;
-      if($f->curve==null) $f->curve = $v->curve;
-      
-      
-      return $f;
-   }
-  
-   private function KoefArray() {
-       $bits =  gmp_strval($this->value,2);
-       return  str_split($bits,1) ;
-       
-   }
-   private static function FromKoefArray($a) {
-       $bs =  implode(' ',$a) ;
-       $bs = str_replace(' ','',$bs) ;
-       $f = self::fromString($bs,2) ;
-   
-       return  $f;
-       
-   }
-   */
+ 
    public static function get0($curve=null)  {
         
        $f = new  Field() ;
@@ -401,27 +315,6 @@
      }
   
  
-   // 84310
-  //  85310
-  
-  
-  //5∙7=(x^2+1)∙(x^2+x+1)=x^4+x^3+x^2+x^2+x+1=x^4+x^3+x+1=11011=27
-    
-    // 1010
-  //   1011
-     
-    // 1010
-   // 1010
-  //1010
- // 1001110
-    
-   // 1001110  1011
-  //  1011     1011 
-  //    10110
-  //    1010
-    //   1110
-    //   1110     
-        
         
       
         

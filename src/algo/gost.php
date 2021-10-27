@@ -4,6 +4,7 @@ namespace   PPOLib\Algo ;
 
 use \PPOLib\Util ;
 
+// блочный шифр  согласно  гост 
 class Gost
 {
     public $k = array();

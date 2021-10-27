@@ -5,7 +5,9 @@
  use \PPOLib\Util ;
  
  
- 
+ /**
+ * публичный ключ
+ */
  class Pub  {
      
    public $q;  
@@ -29,7 +31,12 @@
    }
    
    
-   
+    /**
+    * проверка  подписи
+    * 
+    * @param mixed $message   сообщение
+    * @param mixed $sign       цифровая  подпись
+    */
     public  function verify($message,$sign){
        
        $buf = Util::bstr2array($message) ;

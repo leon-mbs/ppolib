@@ -6,7 +6,9 @@
   
  use \PPOLib\Util ;
  
- 
+ /**
+ * Эллиптическая  кривая
+ */
  class  Curve {
                     
    public $m,$ks,$a, $b,$order,$kofactor,$base;
@@ -63,6 +65,7 @@
     
       
    }
+   //распаковка  базовой точки
     public   function expand($x ){
          
        //   $a = Field::fromString("".$this->a,10,$this) ;
@@ -106,7 +109,7 @@
   public function fsquad(Field $v ) {
       $mod = $this->getModulo()  ;
     
-    $hv = $v->toString(16) ;
+  
   $bitl_m = $this->m;
   $range_to = ($bitl_m - 1) / 2;
   $val_a = $v->mod();

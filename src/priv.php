@@ -5,7 +5,9 @@
  use \PPOLib\Util ;
  
  
- 
+ /**
+ * приватны ключ
+ */
  class Priv  {
      
  
@@ -28,12 +30,17 @@
        
    }
    
+   // публичный ключ  на  основе приватного
    public  function pub(){
      
         
         return  new Pub($this->d);
    }
 
+   /**
+   *  подпись сообщения
+   *  возвращает  цифровую  подпись
+   */
    public  function sign($message){
        $buf = Util::bstr2array($message) ;
        $buf = array_reverse($buf) ;
@@ -65,12 +72,10 @@
 
        $s->value =  gmp_mod($s->value,$this->d->curve->order->value) ;
        
-$sh = $s->toString(16);        
+        
        $s->value =  gmp_mod($s->value,$this->d->curve->order->value) ;
  
-$hr = $r->toString(16); 
-$hs = $s->toString(16); 
-       
+ 
       
        
        $ra = Util::hex2array($hr )   ;
