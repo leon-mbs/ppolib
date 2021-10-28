@@ -1,5 +1,7 @@
 Библиотека  для  цифровой подписи документов, отправляемых в  налоговую (Украина)
 
+Портирован с  https://github.com/dstucrypt/jkurwa
+
 Установка 
 
 composer require leon-mbs/ppolib
