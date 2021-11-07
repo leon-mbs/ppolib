@@ -66,30 +66,34 @@ class Field
     }
 
     public function shiftLeft($n) {
-        $s = gmp_strval($this->value, 2);
-        ;
-        for ($i = 0; $i < $n; $i++) {
-            $s = $s . '0';
-        }
+        
+         $value = gmp_mul($this->value,gmp_pow(2,$n)) ;
+   
         $f = new Field();
-        $f->value = gmp_init($s, 2);
+        $f->value = $value;
+  
+        
         $f->curve = $this->curve;
-        if ($f->curve == null)
-            $f->curve = $v->curve;
-        return $f;
+ 
+        return $f; 
+         
     }
 
     public function shiftRight($n) {
+        
+        //(gmp_div($x,gmp_pow(2,$n)));
+        
         $s = gmp_strval($this->value, 2);
-        ;
-        $s0 = str_repeat('0', $n);
-        $s = $s . $s0;
+        $s = substr($s,0,strlen($s)-$n) ;
+         
+      //  $s0 = str_repeat('0', $n);
+      //  $s = $s . $s0;
         $f = new Field();
         $f->curve = $this->curve;
-        if ($f->curve == null)
-            $f->curve = $v->curve;
-        return $f;
         $f->value = gmp_init($s, 2);
+ 
+        return $f;
+       
     }
 
     public function shiftRightCycle($n) {
@@ -110,14 +114,14 @@ class Field
     public function trace() {
         $m = $this->curve->m;
         $t = $this->clone();
-        $h = $t->toString(16);
+       // $h = $t->toString(16);
         for ($i = 1; $i <= $m - 1; $i++) {
             $t = $t->mulmod($t);
-            $h1 = $t->toString(16);
+         //   $h1 = $t->toString(16);
             $t = $t->add($this);
-            $h2 = $t->toString(16);
+          //  $h2 = $t->toString(16);
         }
-        $h = $t->toString(16);
+      //  $h = $t->toString(16);
         return $t->testBit(0);
     }
 
