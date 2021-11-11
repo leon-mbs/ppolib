@@ -26,7 +26,19 @@ class PPO
      */
     public static function sign($message, Priv $key, Cert $cert) {
 
+        
+        $hashid="1.2.804.2.1.1.1.1.2.1";  //gost89
+        
+        
         $hash = \PPOLib\Algo\Hash::gosthash($message);
+       
+       
+     //   $hashid="1.2.804.2.1.1.1.1.2.2";    //dstu7564
+      
+     //   $hash = \PPOLib\Algo\DSTU7564::hash($message);
+        
+        
+        
         $hash = Util::array2bstr($hash);
         $certhash = $cert->getHash();
         $certhash = Util::array2bstr($certhash);
@@ -40,7 +52,7 @@ class PPO
 
         $data = new Sequence($dataid, $data);
 
-        $algoid = new ObjectIdentifier("1.2.804.2.1.1.1.1.2.1");    //Gost34311
+        $algoid = new ObjectIdentifier($hashid);    //hashid
 
 
         $version = new Integer(1);
@@ -58,7 +70,7 @@ class PPO
 
         //атрибуты для  подписи
 
-        $seq3 = new Sequence(new Sequence(new ObjectIdentifier("1.2.804.2.1.1.1.1.2.1")), new OctetString($certhash), $cv2);
+        $seq3 = new Sequence(new Sequence(new ObjectIdentifier($hashid)), new OctetString($certhash), $cv2);
 
         $attr1 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.47"), new Set(new Sequence(new Sequence($seq3))));
         $attr2 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.3"), new Set(new ObjectIdentifier("1.2.840.113549.1.7.1")));
@@ -74,8 +86,7 @@ class PPO
 
         $sign = $key->sign($ahash);
 
-        //  $sign = "0E469C8C9019155210E3F0C0C7D1807486598D1CED1A5851C3EA494A55DBDA54ADA02C…"; //подпись
-
+  
         $sign = new OctetString($sign);
         $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
 
