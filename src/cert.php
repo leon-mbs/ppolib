@@ -57,18 +57,6 @@ class Cert
 
         return \Sop\ASN1\Type\Constructed\Sequence::fromDER($this->_raw);
     }
- 
- //владелец ключа
-   public function getOwner() {
-        $cert = $this->getAsn1();
-        $cer = $cert->at(0)->asSequence();
-        
-        $cert_issuer = $cer->at(5)->asSequence()->at(0)->asSet()->at(0)->asSequence();
-
-       $is =  $cert_issuer->at(1)->asUTF8String()->string();
-
-        return $is;
-    }
 
     public function getHash() {
         $hash = \PPOLib\Algo\Hash::gosthash($this->_raw);

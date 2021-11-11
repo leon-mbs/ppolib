@@ -12,6 +12,9 @@ class Util
 {
 
     public static function hex2array($hex, $to8 = false) {
+        if((strlen($hex) %2)==1) {
+          $hex = '0'.$hex;  
+        } 
         $s = str_split($hex, 2);
         $a = array();
         for ($i = 0; $i < count($s); $i++) {

@@ -142,7 +142,7 @@ class KeyStore
 
 
           if($uid!="1.3.6.1.4.1.19398.1.1.1.2") {  //IIT Store
-          throw new  \Exception("Неверное хранилище  ключа");
+              throw new  \Exception("Неверное хранилище  ключа");
           }
 
           $cryptParam = $seq->at(0)->asSequence()->at(1)->asSequence()   ;
@@ -252,8 +252,7 @@ class KeyStore
        throw new \Exception("Invalid key") ;
     }
 
+   
 }
 
- 
-  
  
