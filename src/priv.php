@@ -53,7 +53,7 @@ class Priv
         $rand = $this->d->curve->random();
        // $rand = Field::fromString("cff54cbea213c081ed5b13720a00f39b7a2edd3d079194d5ffe807c6d3f19f5cf4c5d0798bbd385f5fb20d316899d2f27a7a521fc04",16) ;
         $hrand = $rand->toString(16);
-    // file_put_contents(  "z:/home/local.ppolib/www/data/rand",$hrand);
+    
         $eG = $this->d->curve->base->mul($rand);
         $h = $eG->x->toString(16);
 
