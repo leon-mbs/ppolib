@@ -82,10 +82,12 @@ class PPO
         $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
 
         $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
+        $hhash = Util::array2hex($ahash);
+
         $ahash = Util::array2bstr($ahash);
 
         $sign = $key->sign($ahash);
-
+        $hhash = Util::array2hex($ahash);
   
         $sign = new OctetString($sign);
         $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
