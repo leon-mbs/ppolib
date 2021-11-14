@@ -205,11 +205,9 @@ class PPO
         }
         curl_close($request);
 
-        if (strpos($return, 'encoding') > 0) { //ответ в  xml
-            return self::decrypt($return);
-        } else {
-            return $return;
-        }
+  
+          return $return;
+       
     }
 
 }

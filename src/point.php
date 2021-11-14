@@ -77,8 +77,8 @@ class Point
         $pz = new Point(Field::get0($f->curve), Field::get0($f->curve));
 
         $p = $this->clone();
-        $hx = $p->x->toString(16);
-        $hy = $p->y->toString(16);
+//$hx = $p->x->toString(16);
+     //   $hy = $p->y->toString(16);
 
         for ($j = $f->getLength() - 1; $j >= 0; $j--) {
             if ($f->testBit($j) == 1) {

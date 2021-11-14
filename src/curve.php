@@ -149,10 +149,12 @@ class Curve
 
         $xbit = $value->getLength();
         $ret = $value->clone();
+        $ret2 = $value->clone();
         while ($bitl_o <= $xbit) {
             $ret->setBit($xbit - 1, 0);
             $xbit = $ret->getLength();
         }
+        
         return $ret->clone();
     }
 
