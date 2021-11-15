@@ -13,9 +13,7 @@
              "name": "Леонид Мартынюк" 
         }
     ],
-    "autoload": {
-        "psr-4": {
-            "PPOLib\\": "src/"
-        }
-    }  
+    "autoload" : {
+        "files" : ["src/autoload.php"]
+    }
 }

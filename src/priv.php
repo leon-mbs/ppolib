@@ -51,7 +51,7 @@ class Priv
         $h44 = $hv->toString(16);
           
         $rand = $this->d->curve->random();
-        $rand = Field::fromString("cff54cbea213c081ed5b13720a00f39b7a2edd3d079194d5ffe807c6d3f19f5cf4c5d0798bbd385f5fb20d316899d2f27a7a521fc04",16) ;
+       // $rand = Field::fromString("cff54cbea213c081ed5b13720a00f39b7a2edd3d079194d5ffe807c6d3f19f5cf4c5d0798bbd385f5fb20d316899d2f27a7a521fc04",16) ;
         $hrand = $rand->toString(16);
  
         $eG = $this->d->curve->base->mul($rand);
