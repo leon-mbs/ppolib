@@ -5,7 +5,7 @@
     "homepage": "https://github.com/leon-mbs/ppolib",
     "require": {
         "php": ">=7.2",
-        "sop/asn1": "*" 
+        "sop/asn1": "4.1.0" 
     },
  
     "authors": [
