@@ -7,7 +7,7 @@ function autoload($className)
 
  
     if (strpos($className, 'PPOLib\\') === 0) {
-        $path = __DIR__ . '/'. strtolower(str_replace('\\', DIRECTORY_SEPARATOR, str_replace('PPOLib\\', '', $className))) . '.php';
+        $path = __DIR__ . DIRECTORY_SEPARATOR. strtolower(str_replace('\\', DIRECTORY_SEPARATOR, str_replace('PPOLib\\', '', $className))) . '.php';
     } else {
         return;
     }

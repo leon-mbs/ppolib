@@ -137,7 +137,8 @@ class Curve
     public function random() {
 
         $r = new Field();
-        $r->value = gmp_random();
+       
+        $r->value = gmp_init(rand(10,PHP_INT_MAX-1),10);
         $r->curve = $this;
         $r = $this->truncate($r);
 

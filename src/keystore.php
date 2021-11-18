@@ -17,7 +17,7 @@ class KeyStore
     * @param Cert $cert  сертификат
     * @return Priv   приватный ключ
     */
-    public static function load($keydata, $pass, Cert $cert) {
+    public static function load($keydata, $pass, Cert  $cert) {
 
         $keys = array();
 
@@ -35,7 +35,7 @@ class KeyStore
                 $seq = $bag->asSequence()->at(1)->asTagged()->asImplicit(16)->asSequence();
 
                 $seq = $seq->at(0)->asSequence();
-                $cryprData = $seq->at(1)->asOctetString()->string();
+                $cryptData = $seq->at(1)->asOctetString()->string();
 
                 $PBES2 = $seq->at(0)->asSequence()->at(1)->asSequence();
 
@@ -69,9 +69,12 @@ class KeyStore
                 }
 
                 $hash->update32($pw_pad36);
+                  
                 $hash->update(Util::str2array($salt));
                 $hash->update($ins);
                 $h = $hash->finish();
+               
+                 
                 $hash = new \PPOLib\Algo\Hash();
 
                 $hash->update32($pw_pad5C);
@@ -106,11 +109,12 @@ class KeyStore
                 $gost = new \PPOLib\Algo\Gost();
                 $key = $gost->key($key);
 
-                $cryprData = Util::bstr2array($cryprData);
+                $cryptData = Util::bstr2array($cryptData);
+                 
                 $iv = Util::bstr2array($iv);
 
-                $buf = $gost->decrypt_cfb($iv, $cryprData);
-                $buf = array_slice($buf, 0, count($cryprData));
+                $buf = $gost->decrypt_cfb($iv, $cryptData);
+                $buf = array_slice($buf, 0, count($cryptData));
 
                 $parsed = Util::array2bstr($buf);
 
@@ -125,7 +129,7 @@ class KeyStore
                 $param_d = $seq->at(2)->asOctetString()->string();
 
                 $privkey1 = new Priv($param_d, $curveparams, true);
-
+              
                 $keys[] = $privkey1;
             } //bag
         } catch (\Exception $e) {
@@ -231,10 +235,8 @@ class KeyStore
           }
                      
         }
-        
-
-
-
+   
+         
         $cp = $cert->pub();
 
         foreach ($keys as $key) {

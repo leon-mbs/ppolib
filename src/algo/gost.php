@@ -29,7 +29,14 @@ class Gost
             $this->k65[$i] = (($box->k6[$r] << 4) | $box->k5[$i & 15]) << 16;
             $this->k43[$i] = (($box->k4[$r] << 4) | $box->k3[$i & 15]) << 8;
             $this->k21[$i] = ($box->k2[$r] << 4) | $box->k1[$i & 15];
+            
+         if(PHP_INT_SIZE==8 && $this->k87[$i]  > 0x7fffffff) { 
+            $this->k87[$i]=   $this->k87[$i] -0xffffffff -1 ;
+             
+         }
+            
         }
+    
     }
 
     public function key($k): void {
@@ -49,16 +56,21 @@ class Gost
           $this->k43[Util::rrr($x, 8) & 255] |
           $this->k21[$x & 255];          //optimize
          */
+     
         $x = $this->k87[($x >> 24) & 255] |
                 $this->k65[($x >> 16) & 255] |
                 $this->k43[($x >> 8) & 255] |
                 $this->k21[$x & 255];
 
+       
+
         /* Rotate left 11 bits */
 
 
         $x = ($x << 11) | Util::rrr($x, (32 - 11));
-        return $x;
+     
+  
+        return $x & 0xffffffff;
     }
 
     public function crypt($clear) {
@@ -85,10 +97,12 @@ class Gost
     }
 
     public function crypt64($clear) {
+      
+          
         $n = array();
         $n[0] = $clear[0] | ($clear[1] << 8) | ($clear[2] << 16) | ($clear[3] << 24);
         $n[1] = $clear[4] | ($clear[5] << 8) | ($clear[6] << 16) | ($clear[7] << 24);
-
+        
         $n[1] ^= $this->pass($n[0] + $this->k[0]);
         $n[0] ^= $this->pass($n[1] + $this->k[1]);
         $n[1] ^= $this->pass($n[0] + $this->k[2]);
@@ -97,7 +111,7 @@ class Gost
         $n[0] ^= $this->pass($n[1] + $this->k[5]);
         $n[1] ^= $this->pass($n[0] + $this->k[6]);
         $n[0] ^= $this->pass($n[1] + $this->k[7]);
-
+      
         $n[1] ^= $this->pass($n[0] + $this->k[0]);
         $n[0] ^= $this->pass($n[1] + $this->k[1]);
         $n[1] ^= $this->pass($n[0] + $this->k[2]);
@@ -106,7 +120,7 @@ class Gost
         $n[0] ^= $this->pass($n[1] + $this->k[5]);
         $n[1] ^= $this->pass($n[0] + $this->k[6]);
         $n[0] ^= $this->pass($n[1] + $this->k[7]);
-
+     
         $n[1] ^= $this->pass($n[0] + $this->k[0]);
         $n[0] ^= $this->pass($n[1] + $this->k[1]);
         $n[1] ^= $this->pass($n[0] + $this->k[2]);
@@ -115,7 +129,7 @@ class Gost
         $n[0] ^= $this->pass($n[1] + $this->k[5]);
         $n[1] ^= $this->pass($n[0] + $this->k[6]);
         $n[0] ^= $this->pass($n[1] + $this->k[7]);
-
+         
         $n[1] ^= $this->pass($n[0] + $this->k[7]);
         $n[0] ^= $this->pass($n[1] + $this->k[6]);
         $n[1] ^= $this->pass($n[0] + $this->k[5]);
@@ -124,7 +138,7 @@ class Gost
         $n[0] ^= $this->pass($n[1] + $this->k[2]);
         $n[1] ^= $this->pass($n[0] + $this->k[1]);
         $n[0] ^= $this->pass($n[1] + $this->k[0]);
-
+       
         $out = array();
         $out[0] = $n[1] & 0xff;
         $out[1] = Util::rrr($n[1], 8) & 0xff;
@@ -134,7 +148,9 @@ class Gost
         $out[5] = Util::rrr($n[0], 8) & 0xff;
         $out[6] = Util::rrr($n[0], 16) & 0xff;
         $out[7] = Util::rrr($n[0], 24);
-        return $out;
+        
+         
+        return $out;      //216 205 110 128 165 137 175 83
     }
 
     public function decrypt($cypher) {
@@ -204,7 +220,7 @@ class Gost
         $out[5] = Util::rrr($n[0], 8) & 0xff;
         $out[6] = Util::rrr($n[0], 16) & 0xff;
         $out[7] = Util::rrr($n[0], 24);
-        return $out;
+        return $out;     //216 205 110 128 165 137 175 83
     }
 
     public function decrypt_cfb($iv, $data) {
@@ -237,7 +253,12 @@ class Gost
 
         $clear = Util::alloc(8);
         $this->gamma = $this->crypt64($iv);
+      
+        
         for ($j = 0; $j < 8; $j++) {
+            if(!isset($data[$j]) ){
+               $data[$j] =0;  
+            } 
             $iv[$j] = $data[$j];
             $clear[$j] = $data[$j] ^ $this->gamma[$j];
         }
@@ -260,7 +281,7 @@ class SBox
     public $k8 = array();
 
     public function __construct() {
-
+     
         $default = '0102030E060D0B080F0A0C050709000403080B0506040E0A020C0107090F0D0002080907050F000B0C010D0E0A0306040F080E090702000D0C0601050B04030A03080D09060B0F0002050C0A040E01070F0605080E0B0A040C0003070209010D08000C040906070B0203010F050E0A0D0A090D060E0B04050F01030C07000802';
 
         $a = Util::hex2array($default);
@@ -276,3 +297,4 @@ class SBox
     }
 
 }
+ 
