@@ -124,7 +124,7 @@ class KeyStore
 
                 $seq = \Sop\ASN1\Type\Constructed\Sequence::fromDER($parsed);
 
-                $curveparams = $seq->at(1)->asSequence()->at(1)->asSequence()->at(0)->asSequence();
+                $curveparams = $seq->at(1)->asSequence()->at(1)->asSequence()->at(0);
 
                 $param_d = $seq->at(2)->asOctetString()->string();
 
@@ -196,7 +196,7 @@ class KeyStore
           $seq = \Sop\ASN1\Type\Constructed\Sequence::fromDER(Util::array2bstr($buf)) ;
 
 
-          $curveparams =    $seq->at(1)->asSequence()->at(1)->asSequence()->at(0)->asSequence();
+          $curveparams =    $seq->at(1)->asSequence()->at(1)->asSequence()->at(0);
 
 
           $param_d=  $seq->at(2)->asOctetString()->string();
@@ -219,7 +219,7 @@ class KeyStore
               }
               if($uid=='1.3.6.1.4.1.19398.1.1.2.2' ){
 
-                 $curve2 =   $seq->at(1)->asSet()->at(0)->asSequence()->at(0)->asSequence()  ;
+                 $curve2 =   $seq->at(1)->asSet()->at(0)->asSequence()->at(0) ;
 
 
               }

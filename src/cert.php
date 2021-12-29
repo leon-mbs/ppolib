@@ -36,7 +36,7 @@ class Cert
         $pki = $seq->at(6)->asSequence();
 
         $algo = $pki->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
-        $curveparam = $pki->at(0)->asSequence()->at(1)->asSequence()->at(0)->asSequence();
+        $curveparam = $pki->at(0)->asSequence()->at(1)->asSequence()->at(0) ;
         $curve = new Curve($curveparam, true);
 
         $pkey = $pki->at(1)->asBitString()->string();
