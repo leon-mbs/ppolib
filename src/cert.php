@@ -77,7 +77,7 @@ class Cert
     public function getOwner()   {
          $seq =  Sequence::fromDER($this->_raw);
          $seq = $seq->at(0)->asSequence();
-
+        $owner="";
         $cert_issuer = $seq->at(5)->asSequence();
         foreach($cert_issuer as $c) {
            $set = $c->asSet()  ;
@@ -90,6 +90,33 @@ class Cert
 
         return $owner;
     }
+    
+    /**
+    * возвращает  идентификатор  ключа
+    * 
+    */
+     public function getKeyId()   {
+         $seq =  Sequence::fromDER($this->_raw);
+         $seq = $seq->at(0)->asSequence();
+       $keyid="";
+        $ext = $seq->at(7)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();;
+        foreach($ext as $c) {
+       
+           $item=   $c->asSequence() ;
+           $id = $item->at(0)->asObjectIdentifier()->oid() ;
+           if($id=="2.5.29.14"){  
+               $keyid = $item->at(1)->asOctetString()->string();
+               $keyid = substr($keyid,2) ;
+              
+               $h=   Util::array2hex(Util::bstr2array($keyid))   ;
+               $keyid = strtolower($h)  ;
+               break;
+           }
+        }    
+
+        return $keyid;
+    }   
+    
 
 }
  

@@ -106,7 +106,7 @@ class Util
 
     public static function array2bstr($array) {
 
-        $bstr = pack('H*', Util::array2hex($array));
+        $bstr = pack('H*', Util::array2hex($array)); 
         ;
         return $bstr;
     }
