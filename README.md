@@ -23,6 +23,10 @@ composer require leon-mbs/ppolib
    положить  в  сессию  или  сериализовать  и спрятать в  надежном  хранилище для дальнейшего использования
    
    
+   Загрузка  jks файла (ПриватБанк)
+   list($key,$cert) = \PPOLib\KeyStore::loadjks($jks,$password) ;
+   
+   
    Подпись  документа  или  команды
    
    $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert);
