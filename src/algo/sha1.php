@@ -1,0 +1,243 @@
+<?php
+
+namespace PPOLib\Algo;
+
+use \PPOLib\Util;
+
+class SHA1
+{
+
+    private $blocks = array();
+    private $HEX_CHARS = array();
+    private $SHIFT = array(24, 16, 8, 0);
+    private $EXTRA = array(-2147483648, 8388608, 32768, 128);
+    private $h0 = 0x67452301;
+    private $h1 = 0xEFCDAB89;
+    private $h2 = 0x98BADCFE;
+    private $h3 = 0x10325476;
+    private $h4 = 0xC3D2E1F0;
+    private $block = 0;
+    private $start = 0;
+    private $bytes = 0;
+    private $hBytes = 0;
+    private $lastByteIndex = 0;
+    private $finalized = false;
+    private $hashed = false;
+    private $first = true;
+
+    public function __construct() {
+        $this->blocks = Util::alloc(16);
+        $this->HEX_CHARS = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+    }
+
+    public function update($message) {
+        if ($this->finalized)
+            return;
+        $code = $index = 0;
+
+        $length = count($message);
+
+        while ($index < $length) {
+
+
+            if ($this->hashed) {
+                $this->hashed = false;
+                $this->blocks = Util::alloc(16);
+
+                $this->blocks[0] = $this->block;
+            }
+
+            for ($i = $this->start; $index < $length && $i < 64; ++$index) {
+                $this->blocks[$i >> 2] |= $message[$index] << $this->SHIFT[$i++ & 3];
+            }
+
+
+            $this->lastByteIndex = $i;
+
+            $this->bytes += $i - $this->start;
+            if ($i >= 64) {
+                $this->block = $this->blocks[16];
+                $this->start = $i - 64;
+                $this->hash();
+                $this->hashed = true;
+            } else {
+                $this->start = $i;
+            }
+        }
+        if ($this->bytes > 4294967295) {
+            $this->hBytes += $this->bytes / 4294967296 << 0;
+            $this->bytes = $this->bytes % 4294967296;
+        }
+    }
+
+    public function digest() {
+        $this->finalize();
+        $h0 = $this->h0;
+        $h1 = $this->h1;
+        $h2 = $this->h2;
+        $h3 = $this->h3;
+        $h4 = $this->h4;
+        $ret = array(
+            ($h0 >> 24) & 0xFF, ($h0 >> 16) & 0xFF, ($h0 >> 8) & 0xFF, $h0 & 0xFF,
+            ($h1 >> 24) & 0xFF, ($h1 >> 16) & 0xFF, ($h1 >> 8) & 0xFF, $h1 & 0xFF,
+            ($h2 >> 24) & 0xFF, ($h2 >> 16) & 0xFF, ($h2 >> 8) & 0xFF, $h2 & 0xFF,
+            ($h3 >> 24) & 0xFF, ($h3 >> 16) & 0xFF, ($h3 >> 8) & 0xFF, $h3 & 0xFF,
+            ($h4 >> 24) & 0xFF, ($h4 >> 16) & 0xFF, ($h4 >> 8) & 0xFF, $h4 & 0xFF
+        );
+
+        return $ret;
+    }
+
+    public function finalize() {
+        if ($this->finalized)
+            return;
+        $this->finalized = true;
+        $i = $this->lastByteIndex;
+        $this->blocks[16] = $this->block;
+        $this->blocks[$i >> 2] |= $this->EXTRA[$i & 3];
+        $this->block = $this->blocks[16];
+        if ($i >= 56) {
+            if (!$this->hashed) {
+                $this->hash();
+            }
+            $this->blocks = Util::alloc(16);
+            $this->blocks[0] = $this->block;
+        }
+        $this->blocks[14] = $this->hBytes << 3 | Util::rrr($this->bytes, 29);
+        $this->blocks[15] = $this->bytes << 3;
+        $this->hash();
+    }
+
+    private function hash() {
+        $a = $this->h0;
+        $b = $this->h1;
+        $c = $this->h2;
+        $d = $this->h3;
+        $e = $this->h4;
+        $f;
+        $j;
+        $t;
+
+        for ($j = 16; $j < 80; ++$j) {
+            $t = $this->blocks[$j - 3] ^ $this->blocks[$j - 8] ^ $this->blocks[$j - 14] ^ $this->blocks[$j - 16];
+            $this->blocks[$j] = ($t << 1) | ( Util::rrr($t, 31) );
+        }
+
+
+        for ($j = 0; $j < 20; $j += 5) {
+            $f = ($b & $c) | ((~$b) & $d);
+            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $e = $t + $f + $e + 1518500249 + $this->blocks[$j] << 0;
+            $b = ($b << 30) | (Util::rrr2($b, 2));
+
+            $f = ($a & $b) | ((~$a) & $c);
+            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $d = $t + $f + $d + 1518500249 + $this->blocks[$j + 1] << 0;
+            $a = ($a << 30) | (Util::rrr2($a, 2));
+
+            $f = ($e & $a) | ((~$e) & $b);
+            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $c = $t + $f + $c + 1518500249 + $this->blocks[$j + 2] << 0;
+            $e = ($e << 30) | (Util::rrr($e, 2));
+
+            $f = ($d & $e) | ((~$d) & $a);
+            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $b = $t + $f + $b + 1518500249 + $this->blocks[$j + 3] << 0;
+            $d = ($d << 30) | (Util::rrr($d, 2));
+
+            $f = ($c & $d) | ((~$c) & $e);
+            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $a = $t + $f + $a + 1518500249 + $this->blocks[$j + 4] << 0;
+            $c = ($c << 30) | (Util::rrr2($c, 2));
+        }
+
+        for ($j; $j < 40; $j += 5) {
+            $f = $b ^ $c ^ $d;
+            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $e = $t + $f + $e + 1859775393 + $this->blocks[$j] << 0;
+            $b = ($b << 30) | (Util::rrr2($b, 2));
+
+            $f = $a ^ $b ^ $c;
+            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $d = $t + $f + $d + 1859775393 + $this->blocks[$j + 1] << 0;
+            $a = ($a << 30) | (Util::rrr2($a, 2));
+
+            $f = $e ^ $a ^ $b;
+            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $c = $t + $f + $c + 1859775393 + $this->blocks[$j + 2] << 0;
+            $e = ($e << 30) | (Util::rrr2($e, 2));
+
+            $f = $d ^ $e ^ $a;
+            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $b = $t + $f + $b + 1859775393 + $this->blocks[$j + 3] << 0;
+            $d = ($d << 30) | (Util::rrr2($d, 2));
+
+            $f = $c ^ $d ^ $e;
+            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $a = $t + $f + $a + 1859775393 + $this->blocks[$j + 4] << 0;
+            $c = ($c << 30) | (Util::rrr2($c, 2));
+        }
+
+        for ($j; $j < 60; $j += 5) {
+            $f = ($b & $c) | ($b & $d) | ($c & $d);
+            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $e = $t + $f + $e - 1894007588 + $this->blocks[$j] << 0;
+            $b = ($b << 30) | (Util::rrr2($b, 2));
+
+            $f = ($a & $b) | ($a & $c) | ($b & $c);
+            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $d = $t + $f + $d - 1894007588 + $this->blocks[$j + 1] << 0;
+            $a = ($a << 30) | (Util::rrr2($a, 2));
+
+            $f = ($e & $a) | ($e & $b) | ($a & $b);
+            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $c = $t + $f + $c - 1894007588 + $this->blocks[$j + 2] << 0;
+            $e = ($e << 30) | (Util::rrr2($e, 2));
+
+            $f = ($d & $e) | ($d & $a) | ($e & $a);
+            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $b = $t + $f + $b - 1894007588 + $this->blocks[$j + 3] << 0;
+            $d = ($d << 30) | (Util::rrr2($d, 2));
+
+            $f = ($c & $d) | ($c & $e) | ($d & $e);
+            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $a = $t + $f + $a - 1894007588 + $this->blocks[$j + 4] << 0;
+            $c = ($c << 30) | (Util::rrr2($c, 2));
+        }
+
+        for ($j; $j < 80; $j += 5) {
+            $f = $b ^ $c ^ $d;
+            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $e = $t + $f + $e - 899497514 + $this->blocks[$j] << 0;
+            $b = ($b << 30) | (Util::rrr2($b, 2));
+
+            $f = $a ^ $b ^ $c;
+            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $d = $t + $f + $d - 899497514 + $this->blocks[$j + 1] << 0;
+            $a = ($a << 30) | (Util::rrr2($a, 2));
+
+            $f = $e ^ $a ^ $b;
+            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $c = $t + $f + $c - 899497514 + $this->blocks[$j + 2] << 0;
+            $e = ($e << 30) | (Util::rrr2($e, 2));
+
+            $f = $d ^ $e ^ $a;
+            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $b = $t + $f + $b - 899497514 + $this->blocks[$j + 3] << 0;
+            $d = ($d << 30) | (Util::rrr2($d, 2));
+
+            $f = $c ^ $d ^ $e;
+            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $a = $t + $f + $a - 899497514 + $this->blocks[$j + 4] << 0;
+            $c = ($c << 30) | ( Util::rrr2($c, 2));
+        }
+
+
+        $this->h0 = $this->h0 + $a << 0;
+        $this->h1 = $this->h1 + $b << 0;
+        $this->h2 = $this->h2 + $c << 0;
+        $this->h3 = $this->h3 + $d << 0;
+        $this->h4 = $this->h4 + $e << 0;
+    }
+
+}

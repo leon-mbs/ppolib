@@ -65,7 +65,24 @@ class Util
         }
         return $a;
     }
-
+     public static function rrr2($a, $b) {
+      
+        $s = decbin($a);  
+ 
+        $l = strlen($s);
+        if($l <32) {
+          $s0 = str_repeat('0',32-$l);
+          $s = $s0.$s  ;        
+            
+        }
+        
+        for ($i = 0; $i < $b; $i++) {
+            $last = substr($s, strlen($s) - 1, 1);
+            $s = $last . substr($s, 0, strlen($s) - 1);
+        }
+        $a = bindec($s )  ;
+        return $a;
+    }
     public static function str2array($str, $to8 = false) {
         $a = unpack('C*', $str);
 
