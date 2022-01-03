@@ -407,6 +407,7 @@ class JKS
         $ll = count($key_data);
         $data = array_slice($key_data, 20, count($key_data) - 40);
         $iv = array_slice($key_data, 0, 20);
+        $check = array_slice($key_data, count($key_data) - 20);
         $cur = $iv;
         $length = count($data);
         $open = Util::alloc($length);
@@ -432,13 +433,15 @@ class JKS
         $toCheck->update($open);
         $digest = $toCheck->digest();
 
-        $match = 0;
+        //проверка
         for ($i = 0; $i < count($check); $i++) {
-            $match = ($digest[i] ^ $check[i]) || $match;
+           if($digest[$i] != $check[$i]) {
+               throw new \Exception("Invalid  key or password")
+           }; 
         }
 
-        if ($match == 0)
-            return $open;
+     
+          return $open;
     }
 
 }
