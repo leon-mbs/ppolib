@@ -120,116 +120,118 @@ class SHA1
 
         for ($j = 16; $j < 80; ++$j) {
             $t = $this->blocks[$j - 3] ^ $this->blocks[$j - 8] ^ $this->blocks[$j - 14] ^ $this->blocks[$j - 16];
-            $this->blocks[$j] = ($t << 1) | ( Util::rrr($t, 31) );
+            $tt = Util::rrr($t, 31) ;
+            $this->blocks[$j] = Util::ll($t , 1) | ( Util::rrr($t, 31) );
         }
 
 
         for ($j = 0; $j < 20; $j += 5) {
             $f = ($b & $c) | ((~$b) & $d);
-            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $t = Util::ll($a , 5) | (Util::rrr($a, 27));
             $e = $t + $f + $e + 1518500249 + $this->blocks[$j] << 0;
-            $b = ($b << 30) | (Util::rrr2($b, 2));
-
-            $f = ($a & $b) | ((~$a) & $c);
-            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $b = Util::ll($b , 30) | (Util::rrr($b, 2));
+            
+            $f = ($a & $b) | ((~$a) & $c);  
+            $t = Util::ll($e , 5) | (Util::rrr($e, 27));
             $d = $t + $f + $d + 1518500249 + $this->blocks[$j + 1] << 0;
-            $a = ($a << 30) | (Util::rrr2($a, 2));
+            $a = Util::ll($a ,30) | (Util::rrr($a, 2));
 
             $f = ($e & $a) | ((~$e) & $b);
-            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $t = Util::ll($d , 5) | (Util::rrr($d, 27));
             $c = $t + $f + $c + 1518500249 + $this->blocks[$j + 2] << 0;
-            $e = ($e << 30) | (Util::rrr($e, 2));
+                
+            $e = Util::ll($e , 30) | (Util::rrr($e, 2));
 
             $f = ($d & $e) | ((~$d) & $a);
-            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
             $b = $t + $f + $b + 1518500249 + $this->blocks[$j + 3] << 0;
-            $d = ($d << 30) | (Util::rrr($d, 2));
+            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
 
             $f = ($c & $d) | ((~$c) & $e);
-            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
             $a = $t + $f + $a + 1518500249 + $this->blocks[$j + 4] << 0;
-            $c = ($c << 30) | (Util::rrr2($c, 2));
+            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
         }
 
         for ($j; $j < 40; $j += 5) {
             $f = $b ^ $c ^ $d;
-            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
             $e = $t + $f + $e + 1859775393 + $this->blocks[$j] << 0;
-            $b = ($b << 30) | (Util::rrr2($b, 2));
+            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
 
             $f = $a ^ $b ^ $c;
-            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
             $d = $t + $f + $d + 1859775393 + $this->blocks[$j + 1] << 0;
-            $a = ($a << 30) | (Util::rrr2($a, 2));
+            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
 
             $f = $e ^ $a ^ $b;
-            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
             $c = $t + $f + $c + 1859775393 + $this->blocks[$j + 2] << 0;
-            $e = ($e << 30) | (Util::rrr2($e, 2));
+            $e =  Util::ll($e , 30) | (Util::rrr($e, 2));
 
             $f = $d ^ $e ^ $a;
-            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
             $b = $t + $f + $b + 1859775393 + $this->blocks[$j + 3] << 0;
-            $d = ($d << 30) | (Util::rrr2($d, 2));
+            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
 
             $f = $c ^ $d ^ $e;
-            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
             $a = $t + $f + $a + 1859775393 + $this->blocks[$j + 4] << 0;
-            $c = ($c << 30) | (Util::rrr2($c, 2));
+            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
         }
 
         for ($j; $j < 60; $j += 5) {
             $f = ($b & $c) | ($b & $d) | ($c & $d);
-            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
             $e = $t + $f + $e - 1894007588 + $this->blocks[$j] << 0;
-            $b = ($b << 30) | (Util::rrr2($b, 2));
+            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
 
             $f = ($a & $b) | ($a & $c) | ($b & $c);
-            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
             $d = $t + $f + $d - 1894007588 + $this->blocks[$j + 1] << 0;
-            $a = ($a << 30) | (Util::rrr2($a, 2));
+            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
 
             $f = ($e & $a) | ($e & $b) | ($a & $b);
-            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
             $c = $t + $f + $c - 1894007588 + $this->blocks[$j + 2] << 0;
-            $e = ($e << 30) | (Util::rrr2($e, 2));
+            $e =  Util::ll($e , 30) | (Util::rrr($e, 2));
 
             $f = ($d & $e) | ($d & $a) | ($e & $a);
-            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
             $b = $t + $f + $b - 1894007588 + $this->blocks[$j + 3] << 0;
-            $d = ($d << 30) | (Util::rrr2($d, 2));
+            $d = Util::ll ($d , 30) | (Util::rrr($d, 2));
 
             $f = ($c & $d) | ($c & $e) | ($d & $e);
-            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
             $a = $t + $f + $a - 1894007588 + $this->blocks[$j + 4] << 0;
-            $c = ($c << 30) | (Util::rrr2($c, 2));
+            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
         }
 
         for ($j; $j < 80; $j += 5) {
             $f = $b ^ $c ^ $d;
-            $t = ($a << 5) | (Util::rrr2($a, 27));
+            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
             $e = $t + $f + $e - 899497514 + $this->blocks[$j] << 0;
-            $b = ($b << 30) | (Util::rrr2($b, 2));
+            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
 
             $f = $a ^ $b ^ $c;
-            $t = ($e << 5) | (Util::rrr2($e, 27));
+            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
             $d = $t + $f + $d - 899497514 + $this->blocks[$j + 1] << 0;
-            $a = ($a << 30) | (Util::rrr2($a, 2));
+            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
 
             $f = $e ^ $a ^ $b;
-            $t = ($d << 5) | (Util::rrr2($d, 27));
+            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
             $c = $t + $f + $c - 899497514 + $this->blocks[$j + 2] << 0;
-            $e = ($e << 30) | (Util::rrr2($e, 2));
+            $e = Util::ll ($e , 30) | (Util::rrr($e, 2));
 
             $f = $d ^ $e ^ $a;
-            $t = ($c << 5) | (Util::rrr2($c, 27));
+            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
             $b = $t + $f + $b - 899497514 + $this->blocks[$j + 3] << 0;
-            $d = ($d << 30) | (Util::rrr2($d, 2));
+            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
 
             $f = $c ^ $d ^ $e;
-            $t = ($b << 5) | (Util::rrr2($b, 27));
+            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
             $a = $t + $f + $a - 899497514 + $this->blocks[$j + 4] << 0;
-            $c = ($c << 30) | ( Util::rrr2($c, 2));
+            $c = Util::ll ($c , 30) | ( Util::rrr($c, 2));
         }
 
 

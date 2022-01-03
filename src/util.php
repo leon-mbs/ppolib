@@ -54,34 +54,72 @@ class Util
         if ($b == 0) {
             return (($a >> 1) & 0x7fffffff) * 2 + (($a >> $b) & 1);
         }
-
-        if ($a < 0) {
+           $s = "".$a; 
+         if(PHP_INT_SIZE==8 && $a  > 0x7fffffff) { 
+          
+            $a  =  $a - 0xffffffff -1 ;
+ 
+             
+         }      
+   
+        if ($a < 0 ) {
             $a = ($a >> 1);
             $a &= 0x7fffffff;
             $a |= 0x40000000;
-            $a = ($a >> ($b - 1));
+          //  $a = ($a >> ($b - 1));
+            
+            $s = decbin($a);  
+     
+            $l = strlen($s);
+            $cut = $l-($b - 1) ;
+            if($cut >0)
+              $s ="0". substr($s,0,$l-($b - 1)   );
+            else 
+             $s="0";  
+            
+            $a = bindec($s )  ;        
+            
+            
         } else {
-            $a = ($a >> $b);
+             
+           // $a = ($a >> $b);
+            
+            $s = decbin($a);  
+     
+            $l = strlen($s);
+            $cut = $l-$b ;
+            if($cut >0)
+              $s ="0". substr($s,0,$l-$b   );
+            else 
+             $s="0";  
+            
+            $a = bindec($s )  ;            
+             
         }
         return $a;
     }
-     public static function rrr2($a, $b) {
-      
-        $s = decbin($a);  
  
-        $l = strlen($s);
-        if($l <32) {
-          $s0 = str_repeat('0',32-$l);
-          $s = $s0.$s  ;        
+  public static function ll($a,$b){
+          if(PHP_INT_SIZE==8 && $a > 0) { 
+              
+                    
+              
+            $s = decbin($a);
+            $s = $s. str_repeat('0', $b);
+            $l  =strlen($s);
+             
+            $a = bindec($s) ;
+            $a &= 0xffffffff;
+            if(  $a  > 0x7fffffff) { 
+                $s = "". $a;
+                $a  =  $a - 0xffffffff -1 ;
+                $ss = "". $a;
+                 
+             }            
             
-        }
-        
-        for ($i = 0; $i < $b; $i++) {
-            $last = substr($s, strlen($s) - 1, 1);
-            $s = $last . substr($s, 0, strlen($s) - 1);
-        }
-        $a = bindec($s )  ;
-        return $a;
+            return  $a; 
+         }       
+         return $a << $b ;
     }
     public static function str2array($str, $to8 = false) {
         $a = unpack('C*', $str);

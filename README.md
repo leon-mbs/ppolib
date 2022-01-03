@@ -24,6 +24,7 @@ composer require leon-mbs/ppolib
    
    
    Загрузка  jks файла (ПриватБанк)
+   (пока  работает  только  для  php x86)
    list($key,$cert) = \PPOLib\KeyStore::loadjks($jks,$password) ;
    
    
