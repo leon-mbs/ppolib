@@ -39,9 +39,22 @@ class Util
         }
         return $ss;
     }
-
+   public static function norm32( $r ) {
+         if(PHP_INT_SIZE!=8) return $r;
+       
+        $r = $r & 0xFFFFFFFF;
+        if ($r & 0x80000000)
+        {
+            $r = $r & ~0x80000000;
+            $r = -2147483648 + $r;
+        }
+        return  $r;
+    }
     //аналог >>>
     public static function rrr($a, $b) {
+        
+        $a = Util::norm32($a);
+        
         if ($b >= 32 || $b < -32) {
             $m = (int) ($b / 32);
             $b = $b - ($m * 32);
@@ -99,9 +112,13 @@ class Util
         return $a;
     }
  
-  public static function ll($a,$b){
+    public static function ll($a,$b){
+        
+           $a = Util::norm32($a); 
+        
           if(PHP_INT_SIZE==8 && $a > 0) { 
-              
+            
+        
                     
               
             $s = decbin($a);
@@ -142,15 +159,7 @@ class Util
         return $a;
     }
     
-  public static function norm32( $r ) {
-        $r = $r & 0xFFFFFFFF;
-        if ($r & 0x80000000)
-        {
-            $r = $r & ~0x80000000;
-            $r = -2147483648 + $r;
-        }
-        return  $r;
-    }
+
 
     public static function bstr2array($str, $to8 = false) {
         $a = array();

@@ -11,11 +11,11 @@ class SHA1
     private $HEX_CHARS = array();
     private $SHIFT = array(24, 16, 8, 0);
     private $EXTRA = array(-2147483648, 8388608, 32768, 128);
-    private $h0 = 0x67452301;
-    private $h1 = 0xEFCDAB89;
-    private $h2 = 0x98BADCFE;
-    private $h3 = 0x10325476;
-    private $h4 = 0xC3D2E1F0;
+    private $h0   ;
+    private $h1  ;
+    private $h2  ;
+    private $h3  ;
+    private $h4  ;
     private $block = 0;
     private $start = 0;
     private $bytes = 0;
@@ -28,6 +28,13 @@ class SHA1
     public function __construct() {
         $this->blocks = Util::alloc(16);
         $this->HEX_CHARS = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
+        $this->h0 = 0x67452301;
+        $this->h1 = 0xEFCDAB89;
+       // $this->h1 = Util::norm32($this->h1);
+        
+        $this->h2 = 0x98BADCFE;
+        $this->h3 = 0x10325476;
+        $this->h4 = 0xC3D2E1F0;      
     }
 
     public function update($message) {
@@ -120,118 +127,120 @@ class SHA1
 
         for ($j = 16; $j < 80; ++$j) {
             $t = $this->blocks[$j - 3] ^ $this->blocks[$j - 8] ^ $this->blocks[$j - 14] ^ $this->blocks[$j - 16];
-            $tt = Util::rrr($t, 31) ;
+            
             $this->blocks[$j] = Util::ll($t , 1) | ( Util::rrr($t, 31) );
         }
 
 
         for ($j = 0; $j < 20; $j += 5) {
-            $f = ($b & $c) | ((~$b) & $d);
-            $t = Util::ll($a , 5) | (Util::rrr($a, 27));
-            $e = $t + $f + $e + 1518500249 + $this->blocks[$j] << 0;
-            $b = Util::ll($b , 30) | (Util::rrr($b, 2));
+            $f = Util::norm32( ($b & $c) | ((~$b) & $d));
+            $t = Util::norm32(Util::ll($a , 5) | (Util::rrr($a, 27)));
+            $e = Util::norm32($t + $f + $e + 1518500249 + $this->blocks[$j] << 0);
+            $b = Util::norm32(Util::ll($b , 30) | (Util::rrr($b, 2)));
             
-            $f = ($a & $b) | ((~$a) & $c);  
-            $t = Util::ll($e , 5) | (Util::rrr($e, 27));
-            $d = $t + $f + $d + 1518500249 + $this->blocks[$j + 1] << 0;
-            $a = Util::ll($a ,30) | (Util::rrr($a, 2));
+            $f = Util::norm32(($a & $b) | ((~$a) & $c));  
+            
+ 
+            $t =Util::norm32( Util::ll($e , 5) | (Util::rrr($e, 27)));
+            $d = Util::norm32($t + $f + $d + 1518500249 + $this->blocks[$j + 1] << 0);
+            $a = Util::norm32(Util::ll($a ,30) | (Util::rrr($a, 2)));
 
-            $f = ($e & $a) | ((~$e) & $b);
-            $t = Util::ll($d , 5) | (Util::rrr($d, 27));
-            $c = $t + $f + $c + 1518500249 + $this->blocks[$j + 2] << 0;
-                
-            $e = Util::ll($e , 30) | (Util::rrr($e, 2));
+            $f = Util::norm32(($e & $a) | ((~$e) & $b));
+            $t =Util::norm32( Util::ll($d , 5) | (Util::rrr($d, 27)));
+            $c = Util::norm32($t + $f + $c + 1518500249 + $this->blocks[$j + 2] << 0);
+            $e = Util::norm32(Util::ll($e , 30) | (Util::rrr($e, 2)));
 
-            $f = ($d & $e) | ((~$d) & $a);
-            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
-            $b = $t + $f + $b + 1518500249 + $this->blocks[$j + 3] << 0;
-            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
+            $f = Util::norm32(($d & $e) | ((~$d) & $a));
+            $t =Util::norm32(  Util::ll($c , 5) | (Util::rrr($c, 27)));
+            $b = Util::norm32($t + $f + $b + 1518500249 + $this->blocks[$j + 3] << 0);
+            $d = Util::norm32( Util::ll($d , 30) | (Util::rrr($d, 2)));
 
-            $f = ($c & $d) | ((~$c) & $e);
-            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
-            $a = $t + $f + $a + 1518500249 + $this->blocks[$j + 4] << 0;
-            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
+            $f =Util::norm32( ($c & $d) | ((~$c) & $e));
+            $t =Util::norm32(  Util::ll($b , 5) | (Util::rrr($b, 27)));
+            $a =Util::norm32( $t + $f + $a + 1518500249 + $this->blocks[$j + 4] << 0);
+            $c = Util::norm32( Util::ll($c , 30) | (Util::rrr($c, 2)));
         }
 
-        for ($j; $j < 40; $j += 5) {
-            $f = $b ^ $c ^ $d;
-            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
-            $e = $t + $f + $e + 1859775393 + $this->blocks[$j] << 0;
-            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
+        for ($j ; $j < 40 ; $j += 5) {
+            $f =Util::norm32( $b ^ $c ^ $d);
+            $t = Util::norm32( Util::ll($a , 5) | (Util::rrr($a, 27)));
+            $e =Util::norm32( $t + $f + $e + 1859775393 + $this->blocks[$j] << 0);
+            $b =Util::norm32(  Util::ll($b , 30) | (Util::rrr($b, 2)));
 
-            $f = $a ^ $b ^ $c;
-            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
-            $d = $t + $f + $d + 1859775393 + $this->blocks[$j + 1] << 0;
-            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
+            $f = Util::norm32($a ^ $b ^ $c);
+            $t = Util::norm32( Util::ll($e , 5) | (Util::rrr($e, 27)));
+            $d = Util::norm32($t + $f + $d + 1859775393 + $this->blocks[$j + 1] << 0);
+            $a = Util::norm32( Util::ll($a , 30) | (Util::rrr($a, 2)));
 
-            $f = $e ^ $a ^ $b;
-            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
-            $c = $t + $f + $c + 1859775393 + $this->blocks[$j + 2] << 0;
-            $e =  Util::ll($e , 30) | (Util::rrr($e, 2));
+            $f = Util::norm32($e ^ $a ^ $b);
+            $t = Util::norm32( Util::ll($d , 5) | (Util::rrr($d, 27)));
+            $c = Util::norm32($t + $f + $c + 1859775393 + $this->blocks[$j + 2] << 0);
+            $e = Util::norm32( Util::ll($e , 30) | (Util::rrr($e, 2)));
 
-            $f = $d ^ $e ^ $a;
-            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
-            $b = $t + $f + $b + 1859775393 + $this->blocks[$j + 3] << 0;
-            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
+            $f = Util::norm32($d ^ $e ^ $a);
+            $t = Util::norm32( Util::ll($c , 5) | (Util::rrr($c, 27)));
+            $b = Util::norm32($t + $f + $b + 1859775393 + $this->blocks[$j + 3] << 0);
+            $d = Util::norm32( Util::ll($d , 30) | (Util::rrr($d, 2)));
 
-            $f = $c ^ $d ^ $e;
-            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
-            $a = $t + $f + $a + 1859775393 + $this->blocks[$j + 4] << 0;
-            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
+            $f = Util::norm32($c ^ $d ^ $e);
+            $t = Util::norm32( Util::ll($b , 5) | (Util::rrr($b, 27)));
+       
+            $a = Util::norm32($t + $f + $a + 1859775393 + $this->blocks[$j + 4] << 0);
+            $c = Util::norm32( Util::ll($c , 30) | (Util::rrr($c, 2)));
         }
 
-        for ($j; $j < 60; $j += 5) {
-            $f = ($b & $c) | ($b & $d) | ($c & $d);
-            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
-            $e = $t + $f + $e - 1894007588 + $this->blocks[$j] << 0;
-            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
+        for ($j  ; $j < 60 ; $j += 5) {
+            $f =Util::norm32( ($b & $c) | ($b & $d) | ($c & $d));
+            $t = Util::norm32( Util::ll($a , 5) | (Util::rrr($a, 27)));
+            $e = Util::norm32($t + $f + $e - 1894007588 + $this->blocks[$j] << 0);
+            $b = Util::norm32( Util::ll($b , 30) | (Util::rrr($b, 2)));
 
-            $f = ($a & $b) | ($a & $c) | ($b & $c);
-            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
-            $d = $t + $f + $d - 1894007588 + $this->blocks[$j + 1] << 0;
-            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
+            $f = Util::norm32(($a & $b) | ($a & $c) | ($b & $c));
+            $t =Util::norm32(  Util::ll($e , 5) | (Util::rrr($e, 27)));
+            $d =Util::norm32( $t + $f + $d - 1894007588 + $this->blocks[$j + 1] << 0);
+            $a = Util::norm32( Util::ll($a , 30) | (Util::rrr($a, 2)));
 
-            $f = ($e & $a) | ($e & $b) | ($a & $b);
-            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
-            $c = $t + $f + $c - 1894007588 + $this->blocks[$j + 2] << 0;
-            $e =  Util::ll($e , 30) | (Util::rrr($e, 2));
+            $f =Util::norm32( ($e & $a) | ($e & $b) | ($a & $b));
+            $t = Util::norm32( Util::ll($d , 5) | (Util::rrr($d, 27)));
+            $c =Util::norm32( $t + $f + $c - 1894007588 + $this->blocks[$j + 2] << 0);
+            $e = Util::norm32( Util::ll($e , 30) | (Util::rrr($e, 2)));
 
-            $f = ($d & $e) | ($d & $a) | ($e & $a);
-            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
-            $b = $t + $f + $b - 1894007588 + $this->blocks[$j + 3] << 0;
-            $d = Util::ll ($d , 30) | (Util::rrr($d, 2));
+            $f =Util::norm32( ($d & $e) | ($d & $a) | ($e & $a));
+            $t =Util::norm32(  Util::ll($c , 5) | (Util::rrr($c, 27)));
+            $b =Util::norm32( $t + $f + $b - 1894007588 + $this->blocks[$j + 3] << 0);
+            $d =Util::norm32( Util::ll ($d , 30) | (Util::rrr($d, 2)));
 
-            $f = ($c & $d) | ($c & $e) | ($d & $e);
-            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
-            $a = $t + $f + $a - 1894007588 + $this->blocks[$j + 4] << 0;
-            $c =  Util::ll($c , 30) | (Util::rrr($c, 2));
+            $f =Util::norm32( ($c & $d) | ($c & $e) | ($d & $e));
+            $t = Util::norm32( Util::ll($b , 5) | (Util::rrr($b, 27)));
+            $a = Util::norm32($t + $f + $a - 1894007588 + $this->blocks[$j + 4] << 0);
+            $c = Util::norm32( Util::ll($c , 30) | (Util::rrr($c, 2)));
         }
 
-        for ($j; $j < 80; $j += 5) {
-            $f = $b ^ $c ^ $d;
-            $t =  Util::ll($a , 5) | (Util::rrr($a, 27));
-            $e = $t + $f + $e - 899497514 + $this->blocks[$j] << 0;
-            $b =  Util::ll($b , 30) | (Util::rrr($b, 2));
+        for ($j ; $j < 80 ; $j += 5) {
+            $f = Util::norm32(  $b ^ $c ^ $d);
+            $t =  Util::norm32(  Util::ll($a , 5) | (Util::rrr($a, 27)));
+            $e = Util::norm32(  $t + $f + $e - 899497514 + $this->blocks[$j] << 0);
+            $b = Util::norm32(   Util::ll($b , 30) | (Util::rrr($b, 2)));
 
-            $f = $a ^ $b ^ $c;
-            $t =  Util::ll($e , 5) | (Util::rrr($e, 27));
-            $d = $t + $f + $d - 899497514 + $this->blocks[$j + 1] << 0;
-            $a =  Util::ll($a , 30) | (Util::rrr($a, 2));
+            $f =  Util::norm32( $a ^ $b ^ $c);
+            $t = Util::norm32(   Util::ll($e , 5) | (Util::rrr($e, 27)));
+            $d =  Util::norm32( $t + $f + $d - 899497514 + $this->blocks[$j + 1] << 0);
+            $a =  Util::norm32(  Util::ll($a , 30) | (Util::rrr($a, 2)));
 
-            $f = $e ^ $a ^ $b;
-            $t =  Util::ll($d , 5) | (Util::rrr($d, 27));
-            $c = $t + $f + $c - 899497514 + $this->blocks[$j + 2] << 0;
-            $e = Util::ll ($e , 30) | (Util::rrr($e, 2));
+            $f = Util::norm32(  $e ^ $a ^ $b);
+            $t =  Util::norm32(  Util::ll($d , 5) | (Util::rrr($d, 27)));
+            $c = Util::norm32(  $t + $f + $c - 899497514 + $this->blocks[$j + 2] << 0);
+            $e = Util::norm32(  Util::ll ($e , 30) | (Util::rrr($e, 2)));
 
-            $f = $d ^ $e ^ $a;
-            $t =  Util::ll($c , 5) | (Util::rrr($c, 27));
-            $b = $t + $f + $b - 899497514 + $this->blocks[$j + 3] << 0;
-            $d =  Util::ll($d , 30) | (Util::rrr($d, 2));
+            $f =  Util::norm32( $d ^ $e ^ $a);
+            $t = Util::norm32(   Util::ll($c , 5) | (Util::rrr($c, 27)));
+            $b =  Util::norm32( $t + $f + $b - 899497514 + $this->blocks[$j + 3] << 0);
+            $d =  Util::norm32(  Util::ll($d , 30) | (Util::rrr($d, 2)));
 
-            $f = $c ^ $d ^ $e;
-            $t =  Util::ll($b , 5) | (Util::rrr($b, 27));
-            $a = $t + $f + $a - 899497514 + $this->blocks[$j + 4] << 0;
-            $c = Util::ll ($c , 30) | ( Util::rrr($c, 2));
+            $f = Util::norm32(  $c ^ $d ^ $e);
+            $t =  Util::norm32(  Util::ll($b , 5) | (Util::rrr($b, 27)));
+            $a =  Util::norm32( $t + $f + $a - 899497514 + $this->blocks[$j + 4] << 0);
+            $c = Util::norm32(  Util::ll ($c , 30) | ( Util::rrr($c, 2)));
         }
 
 

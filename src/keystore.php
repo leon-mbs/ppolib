@@ -436,7 +436,7 @@ class JKS
         //проверка
         for ($i = 0; $i < count($check); $i++) {
            if($digest[$i] != $check[$i]) {
-               throw new \Exception("Invalid  key or password");
+              throw new \Exception("Invalid jks key or password");
            }; 
         }
 
