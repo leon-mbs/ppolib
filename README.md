@@ -27,7 +27,7 @@ composer require leon-mbs/ppolib
    list($key,$cert) = \PPOLib\KeyStore::loadjks($jks,$password) ;
    
    В случае  неверной  работы  jks  клюяа  на PHP x64 ключ  можно  сконвертировать в  key-6.dat
-   (или  получить в  налоговой)  или  воспольховатся  сервером  подписи https://github.com/leon-mbs/internal-digital-signature-service
+   (или  получить в  налоговой)  или  воспользоватся  сервером  подписи https://github.com/leon-mbs/internal-digital-signature-service
    
    
    Подпись  документа  или  команды
