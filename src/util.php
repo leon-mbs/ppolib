@@ -141,6 +141,16 @@ class Util
         }
         return $a;
     }
+    
+  public static function norm32( $r ) {
+        $r = $r & 0xFFFFFFFF;
+        if ($r & 0x80000000)
+        {
+            $r = $r & ~0x80000000;
+            $r = -2147483648 + $r;
+        }
+        return  $r;
+    }
 
     public static function bstr2array($str, $to8 = false) {
         $a = array();
