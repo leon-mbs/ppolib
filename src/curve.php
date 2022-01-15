@@ -122,7 +122,9 @@ class Curve
 
         $trace = $y->trace();
         if ((0 == (int) $trace && 1 == (int) $bit) || (1 == (int) $trace && 0 == (int) $bit)) {
-            $y->setBit(0, 1);
+            $bit = $y->testBit(0);
+            $y->setBit(0, 1 ^ $bit);
+
         }
 
         $y = $y->mulmod($x);

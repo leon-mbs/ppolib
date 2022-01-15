@@ -44,8 +44,8 @@ class Pub
         $buf = Util::array2hex(array_reverse(Util::bstr2array($sign)));
         $rs = str_split($buf, strlen($buf) / 2);
 
-        $rb = Util::addzero(Util::hex2array($rs[1]));
-        $sb = Util::addzero(Util::hex2array($rs[0]));
+        $rb = Util::array2hex(Util::addzero(Util::hex2array($rs[1])));
+        $sb = Util::array2hex(Util::addzero(Util::hex2array($rs[0])));
 
         $r = Field::fromString($rb, 16);
         $s = Field::fromString($sb, 16);
@@ -53,7 +53,6 @@ class Pub
         $Q = $this->q->mul($r);
         $S = $this->q->x->curve->base->mul($s);
         $pr = $S->add($Q);
-
         $r1 = $pr->x->mulmod($hv);
         $r1 = $this->q->x->curve->truncate($r1);
         $b = $r1->compare($r);

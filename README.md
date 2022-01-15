@@ -26,7 +26,7 @@ composer require leon-mbs/ppolib
    Загрузка  jks файла (ПриватБанк)
    list($key,$cert) = \PPOLib\KeyStore::loadjks($jks,$password) ;
    
-   В случае  неверной  работы  jks  клюяа  на PHP x64 ключ  можно  сконвертировать в  key-6.dat
+   В случае  неверной  работы  jks  ключа  на PHP x64 ключ  можно  сконвертировать в  key-6.dat
    (или  получить в  налоговой)  или  воспользоватся  сервером  подписи https://github.com/leon-mbs/internal-digital-signature-service
    
    
