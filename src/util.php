@@ -237,4 +237,20 @@ class Util
         return $ret;
     }
 
+    public  static function concat_array($a1,$a2) {
+        $r = array();
+        if(is_array($a1)) {
+           foreach($a1 as $i){
+             $r[]=$i;
+           }
+        }
+        if(is_array($a2)) {
+           foreach($a2 as $i){
+             $r[]=$i;
+           }
+        }
+        
+        return $r;
+    }
+    
 }

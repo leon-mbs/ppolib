@@ -108,30 +108,48 @@ class Curve
         }
         $x2 = $x->mulmod($x);
         $y = $x2->mulmod($x);
-
+        $y1 = $y->toString(16);
+        
         if (1 == (int) $this->a) {
             $y = $y->add($x2);
         }
-
+          $y2 = $y->toString(16);
+  
         $y = $y->add($this->b);
-
+         $y3 = $y->toString(16);
+  
         $x2inv = $x2->invert();
+     
+        $hx2inv = $x2inv->toString(16);
+  
         $y = $y->mulmod($x2inv);
-
+        $y4 = $y->toString(16);
+ 
         $y = $this->fsquad($y);
-
+        $y5 = $y->toString(16);
+   
+ 
         $trace = $y->trace();
         if ((0 == (int) $trace && 1 == (int) $bit) || (1 == (int) $trace && 0 == (int) $bit)) {
             $bit = $y->testBit(0);
             $y->setBit(0, 1 ^ $bit);
-
         }
-
+     
+        $hx = $x->toString(16);
+        $hy = $y->toString(16);
+        $y6 = $y->toString(16);
+ 
         $y = $y->mulmod($x);
-        $h23 = $y->toString(16);
         $x->curve = $this;
         $y->curve = $this;
 
+        $y7 = $y->toString(16);
+        
+        $xx2 = $x->toString(16);
+        $yy2 = $y->toString(16);
+        
+        
+        
         return new Point($x, $y);
     }
 

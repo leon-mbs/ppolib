@@ -415,11 +415,16 @@ class JKS
         $pos = 0;
 
         while ($pos < $length) {
-            $hash = new \PPOLib\Algo\SHA1();
-            $hash->update($pw);
-            $hash->update($cur);
-            $cur = $hash->digest();
+           // $hash = new \PPOLib\Algo\SHA1();
+          //  $hash->update($pw);
+          //  $hash->update($cur);
+          //  $cur = $hash->digest();
 
+            $c = Util::concat_array($pw,$cur) ;
+            
+            $t1= sha1(Util::array2bstr($c))  ;
+            $cur = Util::hex2array($t1)  ;
+               
             for ($i = 0; $i < count($cur); $i++) {
                 $open[$pos] = $data[$pos] ^ $cur[$i];
                 $pos++;
@@ -428,11 +433,18 @@ class JKS
 
         $open = array_slice($open, 0, $length);
 
-        $toCheck = new \PPOLib\Algo\SHA1();
-        $toCheck->update($pw);
-        $toCheck->update($open);
-        $digest = $toCheck->digest();
+      //  $toCheck = new \PPOLib\Algo\SHA1();
+      //  $toCheck->update($pw);
+      //  $toCheck->update($open);
+       // $digest = $toCheck->digest();
 
+            $c = Util::concat_array($pw,$open) ;
+            
+            $t1= sha1(Util::array2bstr($c))  ;
+            $digest = Util::hex2array($t1)  ;
+            
+        
+        
         //проверка
         for ($i = 0; $i < count($check); $i++) {
            if($digest[$i] != $check[$i]) {

@@ -33,7 +33,7 @@ class Pub
     * @param mixed $message   данные
     * @param mixed $sign    ЭЦП  этих данных
     */
-    public function verify($message, $sign) {
+     public function verify($message, $sign) {
 
         $buf = Util::bstr2array($message);
         $buf = array_reverse($buf);
@@ -53,6 +53,8 @@ class Pub
         $Q = $this->q->mul($r);
         $S = $this->q->x->curve->base->mul($s);
         $pr = $S->add($Q);
+        $tt = $pr->x->toString(16) ;
+        $ttt = Util::hex2array($tt) ;
         $r1 = $pr->x->mulmod($hv);
         $r1 = $this->q->x->curve->truncate($r1);
         $b = $r1->compare($r);

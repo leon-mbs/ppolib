@@ -43,9 +43,9 @@ class Cert
         $a = Util::bstr2array($pkey);
         $a = array_slice($a, 2);
         $a = array_reverse($a);
-
+      $aa =  Util::array2hex($a) ;
         $p = Field::fromString(Util::array2hex($a), 16, $curve);
-
+         $ph = $p->toString(16)  ;
         $c->_publickey = $curve->expand($p);
       //   $x=$c->_publickey->x->toString(16);
       //   $y=$c->_publickey->y->toString(16);
