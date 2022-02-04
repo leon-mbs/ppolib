@@ -183,7 +183,7 @@ class PPO
         $request = curl_init();
 
         curl_setopt_array($request, [
-            CURLOPT_URL => "http://80.91.165.208:8609/fs/{$type}",
+            CURLOPT_URL => "http://fs.tax.gov.ua:8609/fs/{$type}",
             CURLOPT_POST => true,
             CURLOPT_HEADER => false,
             CURLOPT_HTTPHEADER => array('Content-Type: application/octet-stream', "Content-Length: " . strlen($data)),
