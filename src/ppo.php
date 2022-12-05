@@ -76,7 +76,7 @@ class PPO
         $attr2 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.3"), new Set(new ObjectIdentifier("1.2.840.113549.1.7.1")));
         $attr3 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.4"), new Set(new OctetString($hash)));
 //        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable('1970-01-01 00:00:00 UTC'))));
-        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s') .' UTC'))));
+        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s')  ))));
 
         $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
 
