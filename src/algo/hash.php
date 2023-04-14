@@ -57,8 +57,8 @@ class Hash
         }
         $off = 0;
         while (count($block) - $off >= 32) {
-            $this->H = Hash::step($this->H, $block32);
-            $this->S = Hash::add_blocks(32, $this->S, $block32);
+            $this->H = $this->step($this->H, $block32);
+            $this->S = $this->add_blocks(32, $this->S, $block32);
             $off += 32;
             $block32 = array_slice($block, $off, 32);
         }
@@ -82,7 +82,7 @@ class Hash
                 $buf[$idx] = $this->left[$idx];
             }
             $this->H = $this->step($this->H, $buf);
-            $this->S = Hash::add_blocks(32, $this->S, $buf);
+            $this->S = $this->add_blocks(32, $this->S, $buf);
             $fin_len += count($this->left);
             $this->left = array();
 
@@ -97,8 +97,8 @@ class Hash
             $fin_len >>= 8;
         }
 
-        $this->H = Hash::step($this->H, $buf);
-        $this->H = Hash::step($this->H, $this->S);
+        $this->H = $this->step($this->H, $buf);
+        $this->H = $this->step($this->H, $this->S);
 
         for ($idx = 0; $idx < 32; $idx++) {
             $ret[$idx] = $this->H[$idx];
@@ -124,9 +124,9 @@ class Hash
     public function update32($block32) {
         
         
-        $this->H = Hash::step($this->H, $block32);
+        $this->H = $this->step($this->H, $block32);
        
-        $this->S = Hash::add_blocks(32, $this->S, $block32);
+        $this->S = $this->add_blocks(32, $this->S, $block32);
         $this->len += 32;
          
     }
