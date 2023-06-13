@@ -117,9 +117,7 @@ class KeyStore
 
                 $parsed = Util::array2bstr($buf);
 
-                // file_put_contents(_ROOT . "data/purekey2",$parsed);
-                //  $parsed = file_get_contents(_ROOT . "data/purekey2" ) ;
-
+     
 
                 $seq = \Sop\ASN1\Type\Constructed\Sequence::fromDER($parsed);
 
@@ -184,9 +182,7 @@ class KeyStore
 
                 $buf = array_slice($buf, 0, count($cbuf));
 
-                // file_put_contents(_ROOT . "data/purekey",$buf);
-                //  $keye = file_get_contents(_ROOT . "data/purekey" ) ;
-
+       
                 $seq = \Sop\ASN1\Type\Constructed\Sequence::fromDER(Util::array2bstr($buf));
 
                 $curveparams = $seq->at(1)->asSequence()->at(1)->asSequence()->at(0);
@@ -426,7 +422,7 @@ class JKS
             $cur = Util::hex2array($t1)  ;
                
             for ($i = 0; $i < count($cur); $i++) {
-                $open[$pos] = $data[$pos] ^ $cur[$i];
+                $open[$pos] = ($data[$pos]?? 0 )^ $cur[$i];
                 $pos++;
             }
         }
