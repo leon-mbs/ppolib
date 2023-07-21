@@ -2,11 +2,11 @@
 
 namespace PPOLib\Algo;
 
-use \PPOLib\Util;
-    // хеширование
+use PPOLib\Util;
+
+// хеширование
 class Hash
 {
-
     private $left = array();
     private $len = 0;
     private $U = array();
@@ -33,20 +33,22 @@ class Hash
         if (is_array($b)) {
             $a = array();
             foreach ($b as $e) {
-                if ($e < 0)
+                if ($e < 0) {
                     $a[] = 256 + $e;
-                else
+                } else {
                     $a[] = $e;
+                }
             }
 
             return $a;
         }
 
 
-        if ($b < 0)
+        if ($b < 0) {
             return 256 + $b;
-        else
+        } else {
             return $b;
+        }
     }
 
     public function update($block) {
@@ -67,7 +69,7 @@ class Hash
         if (count($block32) > 0) {
             $this->left = $block32;
         }
-  
+
 
         //$off = 0;
     }
@@ -104,7 +106,7 @@ class Hash
             $ret[$idx] = $this->H[$idx];
         }
         $fin_len <<= 3;
- 
+
         return $ret;
     }
 
@@ -122,13 +124,13 @@ class Hash
     }
 
     public function update32($block32) {
-        
-        
+
+
         $this->H = $this->step($this->H, $block32);
-       
+
         $this->S = $this->add_blocks(32, $this->S, $block32);
         $this->len += 32;
-         
+
     }
 
     private static function xor_blocks($a, $b) {
@@ -179,37 +181,37 @@ class Hash
     }
 
     private function step($H, $M) {
-        
-         
-        
+
+
+
         $U = Util::alloc(32);
         $V = Util::alloc(32);
         $S = $this->_S;
 
         $W = Hash::xor_blocks($H, $M);
         $Key = Hash::swap_bytes($W);
-    
+
         $gost = new Gost();
         $gost->key($Key);
         $_S = $gost->crypt64($H);
         for ($i = 0; $i < 8; $i++) {
             $S[$i] = $_S[$i];
         }
-       
+
         $U = Hash::circle_xor8($H, $U);
         $V = Hash::circle_xor8($M, $V);
         $V = Hash::circle_xor8($V, $V);
         $W = Hash::xor_blocks($U, $V);
         $Key = Hash::swap_bytes($W);
-        
-        
-        
+
+
+
         $gost->key($Key);
         $_S = $gost->crypt64(array_slice($H, 8, 8));
         for ($i = 0; $i < 8; $i++) {
             $S[$i + 8] = $_S[$i];
         }
-      
+
         $U = Hash::circle_xor8($U, $U);
         $U[31] = ~$U[31];
         $U[29] = ~$U[29];
@@ -272,7 +274,7 @@ class Hash
         }
         $this->Key = $Key;
         $this->_S = $S;
-                
+
         return $H;
     }
 

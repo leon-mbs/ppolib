@@ -2,14 +2,13 @@
 
 namespace PPOLib;
 
-use \PPOLib\Util;
+use PPOLib\Util;
 
 /**
 * точка  на  эллиптической  кривой
 */
 class Point
 {
-
     public $x;
     public $y;
 
@@ -77,8 +76,8 @@ class Point
         $pz = new Point(Field::get0($f->curve), Field::get0($f->curve));
 
         $p = $this->clone();
-//$hx = $p->x->toString(16);
-     //   $hy = $p->y->toString(16);
+        //$hx = $p->x->toString(16);
+        //   $hy = $p->y->toString(16);
 
         for ($j = $f->getLength() - 1; $j >= 0; $j--) {
             if ($f->testBit($j) == 1) {
@@ -103,12 +102,12 @@ class Point
     }
 
     public function isequal($p) {
-        return ( $this->x->compare($p->x) == 0) && ( $this->y->compare($p->y) == 0);
+        return ($this->x->compare($p->x) == 0) && ($this->y->compare($p->y) == 0);
     }
 
     public function iszero() {
 
-        return ( $this->x->is0()) && ( $this->y->is0());
+        return ($this->x->is0()) && ($this->y->is0());
     }
 
 }

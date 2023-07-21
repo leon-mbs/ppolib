@@ -2,23 +2,23 @@
 
 namespace PPOLib\Algo;
 
-use \PPOLib\Util;
+use PPOLib\Util;
+
 /**
 * хеширование  согласно ДСТУ 7564
 * портировано с  https://github.com/storojs72/bc-dstu-csharp
 */
 class DSTU7564
 {
-
-    const ROWS = 8;
-    const REDUCTION_POLYNOMIAL = 0x011d;
-    const BITS_IN_BYTE = 8;
-    const NB_512 = 8;  //Number of 8-byte words in state for <=256-bit hash code.
-    const NB_1024 = 16;  //Number of 8-byte words in state for <=512-bit hash code. 
-    const NR_512 = 10;  //Number of rounds for 512-bit state.
-    const NR_1024 = 14;  //Number of rounds for 1024-bit state.
-    const STATE_BYTE_SIZE_512 = 64;
-    const STATE_BYTE_SIZE_1024 = 128;
+    public const ROWS = 8;
+    public const REDUCTION_POLYNOMIAL = 0x011d;
+    public const BITS_IN_BYTE = 8;
+    public const NB_512 = 8;  //Number of 8-byte words in state for <=256-bit hash code.
+    public const NB_1024 = 16;  //Number of 8-byte words in state for <=512-bit hash code.
+    public const NR_512 = 10;  //Number of rounds for 512-bit state.
+    public const NR_1024 = 14;  //Number of rounds for 1024-bit state.
+    public const STATE_BYTE_SIZE_512 = 64;
+    public const STATE_BYTE_SIZE_1024 = 128;
 
     private $columns;
     private $hashSize;
@@ -127,8 +127,9 @@ class DSTU7564
     }
 
     private function byte($v) {
-        if ($v < 0)
+        if ($v < 0) {
             $temp1[$j][$i] = 256 + $v;
+        }
         return $v & 0xff;
     }
 
@@ -356,14 +357,18 @@ class DSTU7564
         $ret[1] = 0xff & ($num >> 8);
         $ret[2] = 0xff & ($num >> 16);
         $ret[3] = 0xff & ($num >> 24);
-        if ($ret[0] < 0)
+        if ($ret[0] < 0) {
             $ret[0] = 256 + $ret[0];
-        if ($ret[1] < 0)
+        }
+        if ($ret[1] < 0) {
             $ret[1] = 256 + $ret[1];
-        if ($ret[2] < 0)
+        }
+        if ($ret[2] < 0) {
             $ret[2] = 256 + $ret[2];
-        if ($ret[3] < 0)
+        }
+        if ($ret[3] < 0) {
             $ret[3] = 256 + $ret[3];
+        }
         return $ret;
     }
 

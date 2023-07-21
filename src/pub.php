@@ -2,15 +2,13 @@
 
 namespace PPOLib;
 
-use \PPOLib\Util;
-
+use PPOLib\Util;
 
 /**
 * публичный ключ
 */
 class Pub
 {
-
     public $q;
 
     public function __construct($v) {
@@ -26,14 +24,14 @@ class Pub
         }
     }
 
-    
+
     /**
     * проверка  ЭЦП
-    * 
+    *
     * @param mixed $message   данные
     * @param mixed $sign    ЭЦП  этих данных
     */
-     public function verify($message, $sign) {
+    public function verify($message, $sign) {
 
         $buf = Util::bstr2array($message);
         $buf = array_reverse($buf);

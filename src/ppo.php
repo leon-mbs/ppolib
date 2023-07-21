@@ -2,23 +2,22 @@
 
 namespace PPOLib;
 
-use \Sop\ASN1\Type\Constructed\Sequence;
-use \Sop\ASN1\Type\Tagged\ImplicitlyTaggedType;
-use \Sop\ASN1\Type\Primitive\OctetString;
-use \Sop\ASN1\Type\Primitive\ObjectIdentifier;
-use \Sop\ASN1\Type\Constructed\Set;
-use \Sop\ASN1\Type\Primitive\Integer;
-use \Sop\ASN1\Type\Primitive\UTCTime;
+use Sop\ASN1\Type\Constructed\Sequence;
+use Sop\ASN1\Type\Tagged\ImplicitlyTaggedType;
+use Sop\ASN1\Type\Primitive\OctetString;
+use Sop\ASN1\Type\Primitive\ObjectIdentifier;
+use Sop\ASN1\Type\Constructed\Set;
+use Sop\ASN1\Type\Primitive\Integer;
+use Sop\ASN1\Type\Primitive\UTCTime;
 
 /**
  * основной класс  библиотеки
  */
 class PPO
 {
-
     /**
      * Подписывает и упаковывает  документ  или  команду  для  отправки
-     * 
+     *
      * @param mixed $message   данные
      * @param Priv $key   приватный ключ
      * @param $cert  сертификат
@@ -26,19 +25,19 @@ class PPO
      */
     public static function sign($message, Priv $key, Cert $cert) {
 
-        
+
         $hashid="1.2.804.2.1.1.1.1.2.1";  //gost89
-        
-        
+
+
         $hash = \PPOLib\Algo\Hash::gosthash($message);
-       
-       
-     //   $hashid="1.2.804.2.1.1.1.1.2.2";    //dstu7564
-      
-     //   $hash = \PPOLib\Algo\DSTU7564::hash($message);
-        
-        
-        
+
+
+        //   $hashid="1.2.804.2.1.1.1.1.2.2";    //dstu7564
+
+        //   $hash = \PPOLib\Algo\DSTU7564::hash($message);
+
+
+
         $hash = Util::array2bstr($hash);
         $certhash = $cert->getHash();
         $certhash = Util::array2bstr($certhash);
@@ -75,19 +74,19 @@ class PPO
         $attr1 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.47"), new Set(new Sequence(new Sequence($seq3))));
         $attr2 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.3"), new Set(new ObjectIdentifier("1.2.840.113549.1.7.1")));
         $attr3 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.4"), new Set(new OctetString($hash)));
-//        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable('1970-01-01 00:00:00 UTC'))));
-        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s')  ))));
+        //        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable('1970-01-01 00:00:00 UTC'))));
+        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s')))));
 
         $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
 
         $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
 
         $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
-       
+
         $ahash = Util::array2bstr($ahash);
 
         $sign = $key->sign($ahash);
-      
+
         $sign = new OctetString($sign);
         $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
 
@@ -104,7 +103,7 @@ class PPO
 
     /**
      * извлекает  данные  из  сообщения
-     * 
+     *
      * @param mixed $message  входное сообщение
      * @param mixed $onlydata    проверять  цифровую  подпись
      * @return mixed   извлеченные  данные
@@ -114,8 +113,9 @@ class PPO
         $der = Sequence::fromDER($message);
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
 
-        if ($ctype != "1.2.840.113549.1.7.2")
-            return;   //signeddata
+        if ($ctype != "1.2.840.113549.1.7.2") {
+            return;
+        }   //signeddata
 
         $sq5 = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
         $sq5 = $sq5->at(0)->asSequence();
@@ -130,7 +130,7 @@ class PPO
         $sqdata = $sq5->at(2)->asSequence();
 
         $ctype = $sqdata->at(0)->asObjectIdentifier()->oid();
-        if ($ctype == "1.2.840.113549.1.7.1") {   //data 
+        if ($ctype == "1.2.840.113549.1.7.1") {   //data
             $sqxml = $sqdata->at(1)->asTagged()->asImplicit(16)->asSequence();
             $xml = $sqxml->at(0)->asOctetString()->string();
             if ($onlydata) {
@@ -174,7 +174,7 @@ class PPO
 
     /**
      * отправка  запроса
-     *  
+     *
      * @param mixed $data   подписаные  данные
      * @param mixed $type   cmd  или  doc
      */
@@ -204,9 +204,9 @@ class PPO
         }
         curl_close($request);
 
-  
-          return $return;
-       
+
+        return $return;
+
     }
 
 }

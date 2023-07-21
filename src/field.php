@@ -4,7 +4,6 @@ namespace PPOLib;
 
 class Field
 {
-
     public $curve = null;
     public $value = null;
 
@@ -45,7 +44,7 @@ class Field
         return gmp_cmp($this->value, $v->value);
     }
 
-   
+
 
     public function clone() {
 
@@ -66,34 +65,34 @@ class Field
     }
 
     public function shiftLeft($n) {
-        
-         $value = gmp_mul($this->value,gmp_pow(2,$n)) ;
-   
+
+        $value = gmp_mul($this->value, gmp_pow(2, $n)) ;
+
         $f = new Field();
         $f->value = $value;
-  
-        
+
+
         $f->curve = $this->curve;
- 
-        return $f; 
-         
+
+        return $f;
+
     }
 
     public function shiftRight($n) {
-        
+
         //(gmp_div($x,gmp_pow(2,$n)));
-        
+
         $s = gmp_strval($this->value, 2);
-        $s = substr($s,0,strlen($s)-$n) ;
-         
-      //  $s0 = str_repeat('0', $n);
-      //  $s = $s . $s0;
+        $s = substr($s, 0, strlen($s)-$n) ;
+
+        //  $s0 = str_repeat('0', $n);
+        //  $s = $s . $s0;
         $f = new Field();
         $f->curve = $this->curve;
         $f->value = gmp_init($s, 2);
- 
+
         return $f;
-       
+
     }
 
     public function shiftRightCycle($n) {
@@ -106,22 +105,23 @@ class Field
         $f = new Field();
         $f->value = gmp_init($s, 2);
         $f->curve = $this->curve;
-        if ($f->curve == null)
+        if ($f->curve == null) {
             $f->curve = $v->curve;
+        }
         return $f;
     }
 
     public function trace() {
         $m = $this->curve->m;
         $t = $this->clone();
-       // $h = $t->toString(16);
+        // $h = $t->toString(16);
         for ($i = 1; $i <= $m - 1; $i++) {
             $t = $t->mulmod($t);
-         //   $h1 = $t->toString(16);
+            //   $h1 = $t->toString(16);
             $t = $t->add($this);
-          //  $h2 = $t->toString(16);
+            //  $h2 = $t->toString(16);
         }
-      //  $h = $t->toString(16);
+        //  $h = $t->toString(16);
         return $t->testBit(0);
     }
 
@@ -130,12 +130,13 @@ class Field
         $f = new Field();
         $f->value = gmp_xor($this->value, $v->value);
         $f->curve = $this->curve;
-        if ($f->curve == null)
+        if ($f->curve == null) {
             $f->curve = $v->curve;
+        }
         return $f;
     }
 
- 
+
 
     public static function get0($curve = null) {
 
@@ -223,8 +224,9 @@ class Field
             $shift = $shift->shiftLeft(1);
         }
         $bag->curve = $this->curve;
-        if ($bag->curve == null)
+        if ($bag->curve == null) {
             $bag->curve = $v->curve;
+        }
 
         return $bag;
     }
@@ -294,7 +296,7 @@ class Field
                 $v = $tmp;
                 $j = 0 - $j;
             }
-  
+
 
             $s = $s->add($r->shiftLeft($j));
             $v = $v->add($u->shiftLeft($j));
@@ -306,5 +308,5 @@ class Field
         return $u;
     }
 
-      
+
 }
