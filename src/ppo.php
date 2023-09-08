@@ -180,7 +180,8 @@ class PPO
      */
     public static function send($data, $type) {
 
-
+      //  $fp = fopen(_ROOT.'/logs/curl.txt', 'w');      
+      
         $request = curl_init();
 
         curl_setopt_array($request, [
@@ -188,11 +189,12 @@ class PPO
             CURLOPT_POST => true,
             CURLOPT_HEADER => false,
             CURLOPT_HTTPHEADER => array('Content-Type: application/octet-stream', "Content-Length: " . strlen($data)),
-            CURLOPT_ENCODING => "",
+         //   CURLOPT_ENCODING => "",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => 20,
+         //   CURLOPT_CONNECTTIMEOUT => 20,
             CURLOPT_VERBOSE => 1,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+       //             CURLOPT_STDERR        => $fp,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_POSTFIELDS => $data
         ]);
 

@@ -288,10 +288,11 @@ class JKS
             $pubk = $key->pub();
             foreach($this->certs as $cert) {
 
-                $cpub = $cert->pub();
-                if ($pubk->q->isequal($cpub->q)) {
-
-                    return array( $key, $cert);
+                if($cert->isKeyUsage() ){;
+                    $cpub = $cert->pub();
+                    if ($pubk->q->isequal($cpub->q)) {
+                        return array( $key, $cert);
+                    }
                 }
 
             }

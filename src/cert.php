@@ -117,5 +117,32 @@ class Cert
         return $keyid;
     }
 
+    /**
+    * проверяет  keyusage
+    * 
+    */
+    public function isKeyUsage() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $keyid="";
+        $ext = $seq->at(7)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
+        
+        foreach($ext as $c) {
 
+            $item=   $c->asSequence() ;
+            $id = $item->at(0)->asObjectIdentifier()->oid() ;
+            if($id=="2.5.29.15") {
+                $flag = $item->at(2)->asOctetString()->string();
+                $flaga = Util::bstr2array($flag)  ;
+
+                if($flaga[3] == 192)  {
+                    return  true;
+                }
+                
+            }
+        }
+
+        return false;
+    }    
+    
 }
