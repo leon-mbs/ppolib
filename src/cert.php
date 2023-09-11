@@ -25,11 +25,7 @@ class Cert
         $seq =  Sequence::fromDER($cert);
         $seq = $seq->at(0)->asSequence();
 
-        $serial = $seq->at(1)
-                ->asInteger()
-                ->number();
-
-
+ 
 
         $algo = $seq->at(2)->asSequence()->at(0)->asObjectIdentifier()->oid();
         $pki = $seq->at(6)->asSequence();
@@ -144,5 +140,35 @@ class Cert
 
         return false;
     }    
+  
+  
+    /**
+    * возвращает серийный  номер
+    * 
+    */
+    public function getSerial() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+    
+        $serial = $seq->at(1)
+                ->asInteger()
+                ->number();
+
+        return $serial;
+    }   
+
+    /**
+    * дата окончания
+    * @return  timestamp
+    */
+    public function getEndDate() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $seq = $seq->at(4)->asSequence();
+        $t = $seq->at(1)->asUTCTime()->dateTime();
+ 
+         
+        return $t->getTimestamp();
+    }  
     
 }
