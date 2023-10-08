@@ -21,24 +21,18 @@ class PPO
      * @param mixed $message   данные
      * @param Priv $key   приватный ключ
      * @param $cert  сертификат
-     * @return string   подписаное  сообщение
+     * @param $detached  открепленная  подпись (без данных)
+     * @return string   подписаное  сообщение              
      */
-    public static function sign($message, Priv $key, Cert $cert) {
+    public static function sign($message, Priv $key, Cert $cert,$detached=false) {
 
 
         $hashid="1.2.804.2.1.1.1.1.2.1";  //gost89
 
 
         $hash = \PPOLib\Algo\Hash::gosthash($message);
-
-
-        //   $hashid="1.2.804.2.1.1.1.1.2.2";    //dstu7564
-
-        //   $hash = \PPOLib\Algo\DSTU7564::hash($message);
-
-
-
         $hash = Util::array2bstr($hash);
+        
         $certhash = $cert->getHash();
         $certhash = Util::array2bstr($certhash);
 
@@ -49,8 +43,13 @@ class PPO
         $data = new ImplicitlyTaggedType(0, $data);
         $dataid = new ObjectIdentifier("1.2.840.113549.1.7.1");   //данные
 
-        $data = new Sequence($dataid, $data);
 
+        if($detached){
+            $data = new Sequence($dataid);
+        } else {
+            $data = new Sequence($dataid, $data);
+        }
+        
         $algoid = new ObjectIdentifier($hashid);    //hashid
 
 
@@ -91,7 +90,10 @@ class PPO
         $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
 
         $signerinfo = new Set($signerinfo);
-        $signeddata = new Sequence($version, new Set(new Sequence($algoid)), $data, new ImplicitlyTaggedType(0, new Sequence($cert)), $signerinfo);
+       
+
+        $signeddata = new Sequence($version, new Set(new Sequence($algoid)), $data, new ImplicitlyTaggedType(0, new Sequence($cert)), $signerinfo);    
+        
 
         $signeddata = new Sequence($signeddata);
         $signeddata = new ImplicitlyTaggedType(0, $signeddata);
@@ -106,9 +108,10 @@ class PPO
      *
      * @param mixed $message  входное сообщение
      * @param mixed $onlydata    проверять  цифровую  подпись
+     * @param mixed $detachedfile   данные  с  случае открепленной подписи
      * @return mixed   извлеченные  данные
      */
-    public static function decrypt($message, $onlydata = false) {
+    public static function decrypt($message, $onlydata = false,$detachedfile=null) {
 
         $der = Sequence::fromDER($message);
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
@@ -128,16 +131,29 @@ class PPO
 
         //data
         $sqdata = $sq5->at(2)->asSequence();
-
+        $xml == null;
         $ctype = $sqdata->at(0)->asObjectIdentifier()->oid();
         if ($ctype == "1.2.840.113549.1.7.1") {   //data
-            $sqxml = $sqdata->at(1)->asTagged()->asImplicit(16)->asSequence();
-            $xml = $sqxml->at(0)->asOctetString()->string();
+            $cnt = count($sqdata) ;
+            if($cnt==2) {      
+              $sqxml = $sqdata->at(1)->asTagged()->asImplicit(16)->asSequence();
+              $xml = $sqxml->at(0)->asOctetString()->string();
+            }
             if ($onlydata) {
                 return $xml;
             }
         }
-
+        if($xml == null) {
+            $xml = $detachedfile;
+        }
+        if($xml == null) {
+            throw new \Exception("No payload data");
+        }
+        
+        $hash = \PPOLib\Algo\Hash::gosthash($xml);
+        $hash1 = Util::array2bstr($hash);        
+        
+        
         //cert
         $sqcert = $sq5->at(3)->asTagged()->asImplicit(16)->asSequence();
         $dercert = $sqcert->at(0)->asSequence()->toDer();
@@ -156,6 +172,14 @@ class PPO
 
         $c = count($a);
 
+        $hh = $a->at(2)->asSequence()  ;
+        $hash2 = $hh->at(1)->asSet()->at(0)->asOctetString()->string();
+
+        if($hash1 !== $hash2) {
+            throw new \Exception("Incorrect hash of the  data");
+        }
+        
+        
         $derattrs = (new Set($a->at(0)->asSequence(), $a->at(1)->asSequence(), $a->at(2)->asSequence(), $a->at(3)->asSequence()))->toDER();
 
         $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
