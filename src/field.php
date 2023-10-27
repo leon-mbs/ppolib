@@ -1,4 +1,4 @@
-<?php
+<?php    
 
 namespace PPOLib;
 
@@ -61,7 +61,7 @@ class Field
     }
 
     public function setBit($i, $v) {
-        gmp_setbit($this->value, $i, $v);
+        gmp_setbit($this->value, intval($i), $v ==1);
     }
 
     public function shiftLeft($n) {
