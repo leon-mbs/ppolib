@@ -1,5 +1,5 @@
-<?php    
-
+<?php
+ 
 namespace PPOLib;
 
 use PPOLib\Util;
@@ -101,9 +101,7 @@ class KeyStore
                     }
                 }
 
-
-
-
+ 
                 $gost = new \PPOLib\Algo\Gost();
                 $key = $gost->key($key);
 

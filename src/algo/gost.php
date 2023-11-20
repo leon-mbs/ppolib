@@ -1,5 +1,5 @@
-<?php      
-
+<?php
+ 
 namespace PPOLib\Algo;
 
 use PPOLib\Util;
