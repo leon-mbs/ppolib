@@ -74,9 +74,18 @@ class Priv
 
         $sh = $s->toString(16);
         $s->value = gmp_mod($s->value, $this->d->curve->order->value);
-
+        
+       
         $hs = $s->toString(16);
         $hr = $r->toString(16);
+
+        if(strlen($hs) < 64){
+             while(strlen($hs) < 64) $hs ='0'.$hs;
+        }          
+        if(strlen($hr) < 64){
+             while(strlen($hr) < 64) $hr ='0'.$hr;
+        }          
+/*
         $tmp_r1= Util::hex2array($hr);
 
 
@@ -103,11 +112,11 @@ class Priv
         foreach($spl as $chunk) {
             $tmp_r[]=  base_convert($chunk, 2, 10) ;
         }
-
+        */
 
         // $r = Field::fromString($br,2,$this->d->curve)  ;
-        // $tmp_r= Util::hex2array($hr);
-
+        
+        $tmp_r= Util::hex2array($hr);
         $tmp_s = Util::hex2array($hs);
 
         $mlen = max(array(count($tmp_r),count($tmp_s))) ;
@@ -117,22 +126,15 @@ class Priv
 
         for ($idx = 0; $idx < $mlen; $idx++) {
             $tmp = $tmp_r[$mlen - $idx - 1];
-
             $buf[$idx+2] =  $tmp <0 ? 256+$tmp : $tmp;
-
-
         }
 
         for ($idx = 0; $idx < $mlen; $idx++) {
             $tmp = $tmp_s[$mlen - $idx - 1];
-
             $buf[$idx+2+$mlen] =  $tmp <0 ? 256+$tmp : $tmp;
-
-
         }
 
         $buf = array_slice($buf, 2) ;
-
 
         $signh = Util::array2hex($buf);
         $sign = Util::array2bstr($buf);

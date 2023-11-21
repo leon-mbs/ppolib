@@ -21,7 +21,7 @@ class Point
     public function add(Point $p) {
 
 
-        $a = Field::fromInt($this->x->curve->a, $this->x->curve);
+        $a = Field::fromInt($this->x->curve->a ??0, $this->x->curve);
         $pz = new Point(Field::get0($this), Field::get0($this));
 
         $x0 = $this->x->clone();

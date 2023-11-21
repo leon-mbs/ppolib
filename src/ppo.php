@@ -131,7 +131,7 @@ class PPO
 
         //data
         $sqdata = $sq5->at(2)->asSequence();
-        $xml == null;
+        $xml = null;
         $ctype = $sqdata->at(0)->asObjectIdentifier()->oid();
         if ($ctype == "1.2.840.113549.1.7.1") {   //data
             $cnt = count($sqdata) ;
