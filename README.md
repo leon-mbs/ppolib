@@ -37,6 +37,9 @@ composer require leon-mbs/ppolib
    Открепленная  подпись (без данных)
    $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,true);
 
+   Подпись с  TSP отметкой
+   $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,false,true);
+
    
    Отправка  запроса  в  налоговую
    

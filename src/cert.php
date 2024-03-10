@@ -170,5 +170,36 @@ class Cert
          
         return $t->getTimestamp();
     }  
-    
+    /**
+    * алркс  tsp сервера
+    * 
+    */
+    public function getTspLink() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $ret='';
+        $ext = $seq->at(7)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
+        
+        foreach($ext as $c) {
+
+            $item=   $c->asSequence() ;
+            $id = $item->at(0)->asObjectIdentifier()->oid() ;
+            if($id=="1.3.6.1.5.5.7.1.11") {
+                $str = $item->at(1)->asOctetString()->string();
+                
+                $seq =  Sequence::fromDER($str);
+                $seq=   $seq->at(0)->asSequence() ;
+                $id = $seq->at(0)->asObjectIdentifier()->oid() ;
+                if($id=='1.3.6.1.5.5.7.48.3') {
+                   $ret = $seq->at(1)->asTagged()->asImplicit(4)->asOctetString()->string() ;   
+                }
+                
+                 
+      
+            }
+        }
+
+        return $ret;
+    }    
+      
 }

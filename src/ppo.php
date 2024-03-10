@@ -24,17 +24,21 @@ class PPO
      * @param $detached  открепленная  подпись (без данных)
      * @return string   подписаное  сообщение              
      */
-    public static function sign($message, Priv $key, Cert $cert,$detached=false) {
+    public static function sign($message, Priv $key, Cert $cert,$detached=false,$usetsp=false) {
 
 
         $hashid="1.2.804.2.1.1.1.1.2.1";  //gost89
 
 
         $hash = \PPOLib\Algo\Hash::gosthash($message);
+        $hashtsp = $hash;
+                    
         $hash = Util::array2bstr($hash);
+        $hashb = $hash;
         
         $certhash = $cert->getHash();
         $certhash = Util::array2bstr($certhash);
+        $tsplink= $cert->getTspLink();
 
         $cert = $cert->getAsn1();
 
@@ -73,28 +77,50 @@ class PPO
         $attr1 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.47"), new Set(new Sequence(new Sequence($seq3))));
         $attr2 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.3"), new Set(new ObjectIdentifier("1.2.840.113549.1.7.1")));
         $attr3 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.4"), new Set(new OctetString($hash)));
-        //        $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable('1970-01-01 00:00:00 UTC'))));
         $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s')))));
 
-        $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
+        /*
+        if($usetsp) {
+            $tsp = \PPOLib\PPO::getTimestamp($tsplink, $hashb);
 
+            $attr5 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.20"),new Set( $tsp));
+            $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3,   $attr5,$attr4));            
+            $derattrs = (new Set($attr1, $attr2, $attr3,   $attr5,$attr4))->toDER();            
+        }  else {
+           $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
+           $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
+        }
+      */
+        $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
         $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
+ 
+     
 
         $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
-
+        $ahashtsp =$ahash;
         $ahash = Util::array2bstr($ahash);
 
         $sign = $key->sign($ahash);
-
+        $signb= \PPOLib\Algo\Hash::gosthash($sign);;
         $sign = new OctetString($sign);
-        $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
+          
 
-        $signerinfo = new Set($signerinfo);
-       
+  
+       if($usetsp) {
+            $tsp = \PPOLib\PPO::getTimestamp($tsplink, $signb);
+ 
+            $attr = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.14"),new Set( $tsp));
+            $attrsu = new ImplicitlyTaggedType(1, new Sequence($attr));            
+            $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign,$attrsu);
+            
+        }  else {
+           $signerinfo = new Sequence($version, new Sequence($cert_issuer, $cert_serial), new Sequence($algoid), $attrs, new Sequence($algoidenc), $sign);
+   
+        }
 
-        $signeddata = new Sequence($version, new Set(new Sequence($algoid)), $data, new ImplicitlyTaggedType(0, new Sequence($cert)), $signerinfo);    
+        $signerinfos = new Set($signerinfo);
+        $signeddata = new Sequence($version, new Set(new Sequence($algoid)), $data, new ImplicitlyTaggedType(0, new Sequence($cert)), $signerinfos);    
         
-
         $signeddata = new Sequence($signeddata);
         $signeddata = new ImplicitlyTaggedType(0, $signeddata);
 
@@ -232,6 +258,59 @@ class PPO
 
 
         return $return;
+
+    }
+
+    /**
+    * Получить  timestamp
+    * 
+    * @param mixed $url
+    * @param mixed $data хеш сообщения   
+    */
+    private  static function getTimestamp($url,$data ) {
+
+       $version = new Integer(1);
+       $algo = new ObjectIdentifier("1.2.804.2.1.1.1.1.2.1");   
+       if(is_array($data)) {
+           $data = Util::array2bstr($data) ;
+       }
+       $data = new OctetString(($data));
+    
+       $s1 = new Sequence(new Sequence($algo),$data);
+    
+       $s2 = new Sequence($version,$s1);
+      
+       $data = $s2->toDER();
+      
+        $request = curl_init();
+
+        curl_setopt_array($request, [
+            CURLOPT_URL =>$url,
+            CURLOPT_POST => true,
+            CURLOPT_HEADER => false,
+            CURLOPT_HTTPHEADER => array('Content-Type: application/tsp-request', "Content-Length: " . strlen($data)),
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_VERBOSE => 1,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_POSTFIELDS => $data
+        ]);
+
+        $return = curl_exec($request);
+        $status_code = curl_getinfo($request, CURLINFO_HTTP_CODE);
+ 
+        if (curl_errno($request) > 0) {
+
+            throw new \Exception(curl_error($request));
+        }
+        curl_close($request);
+
+    
+        $seq =  Sequence::fromDER($return);
+        $status = $seq->at(0)->asSequence()->at(0)->asInteger()->number() ;
+        if ($status != 0) {
+            throw new \Exception("YSP not granted. Status ".$status);
+        }      
+        return $seq->at(1)->asSequence();
 
     }
 

@@ -69,7 +69,14 @@ class Gost
 
         $x = ($x << 11) | Util::rrr($x, (32 - 11));
 
-
+        /*  php 8 deprecated
+        $p1= gmp_init($x) ;        
+        $p2= gmp_init(0xffffffff) ;        
+        $p= gmp_and($p1,$p2) ;
+        
+        $pp=      gmp_intval( $p) ;
+        */
+        
         return $x & 0xffffffff;
     }
 
