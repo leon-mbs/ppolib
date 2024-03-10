@@ -30,14 +30,13 @@ composer require leon-mbs/ppolib
    (или  получить в  налоговой)  или  воспользоватся  сервером  подписи https://github.com/leon-mbs/internal-digital-signature-service
    
    
-   Подпись  документа  или  команды
-   
+   Подпись  документа  или  команды  
    $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert);
 
-   Открепленная  подпись (без данных)
+   Открепленная  подпись (без данных)  
    $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,true);
 
-   Подпись с  TSP отметкой
+   Подпись с  TSP отметкой  
    $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,false,true);
 
    
