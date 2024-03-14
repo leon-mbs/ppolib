@@ -170,6 +170,21 @@ class Cert
          
         return $t->getTimestamp();
     }  
+
+    /**
+    * дата начала
+    * @return  timestamp
+    */
+    public function getStartDate() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $seq = $seq->at(4)->asSequence();
+        $t = $seq->at(0)->asUTCTime()->dateTime();
+ 
+         
+        return $t->getTimestamp();
+    }  
+
     /**
     * алркс  tsp сервера
     * 
@@ -201,5 +216,73 @@ class Cert
 
         return $ret;
     }    
+    
+    /**
+    *   ЄДРПОУ
+    * 
+    */
+    public function getTIN() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $keyid="";
+        $ext = $seq->at(7)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
+        
+        foreach($ext as $c) {
+
+            $item=   $c->asSequence() ;
+            $id = $item->at(0)->asObjectIdentifier()->oid() ;
+            if($id=="2.5.29.9") {
+                $str = $item->at(1)->asOctetString()->string();
+                $el =  Sequence::fromDER($str);
+ 
+                foreach($el as $o) {
+                    $seq1 = $o->asSequence() ;
+                    $id = $seq1->at(0)->asObjectIdentifier()->oid() ;
+                    if($id=='1.2.804.2.1.1.1.11.1.4.2.1') {
+                        return $seq1->at(1)->asSet()->at(0)->asPrintableString()->string() ;
+                    }
+                
+                }         
+                
+            }
+        }
+
+        return null;
+    }     
+    /**
+    * ИНН    
+    * 
+    */
+    public function getIPN() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+        $keyid="";
+        $ext = $seq->at(7)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
+        
+        foreach($ext as $c) {
+
+            $item=   $c->asSequence() ;
+            $id = $item->at(0)->asObjectIdentifier()->oid() ;
+            if($id=="2.5.29.9") {
+                $str = $item->at(1)->asOctetString()->string();
+                $el =  Sequence::fromDER($str);
+ 
+                foreach($el as $o) {
+                    $seq1 = $o->asSequence() ;
+                    $id = $seq1->at(0)->asObjectIdentifier()->oid() ;
+    
+                    if($id=='1.2.804.2.1.1.1.11.1.4.1.1') {
+                        return $seq1->at(1)->asSet()->at(0)->asPrintableString()->string() ;
+                    }
+                }         
+                
+            }
+        }
+
+        return null;
+    }     
+    
+    
       
 }
+ 
