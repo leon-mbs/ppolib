@@ -308,7 +308,7 @@ class PPO
         $seq =  Sequence::fromDER($return);
         $status = $seq->at(0)->asSequence()->at(0)->asInteger()->number() ;
         if ($status != 0) {
-            throw new \Exception("YSP not granted. Status ".$status);
+            throw new \Exception("TSP not granted. Status ".$status);
         }      
         return $seq->at(1)->asSequence();
 
