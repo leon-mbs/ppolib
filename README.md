@@ -1,9 +1,8 @@
-Библиотека  для  цифровой подписи документов, отправляемых в  налоговую (Украина)
+Библиотека  для наложения цифровой подписи  (КЕП)  согласно ДСТУ-4145
 
 Большинство  кода  портировано с [https://github.com/dstucrypt/jkurwa](https://github.com/dstucrypt/jkurwa)   
 
-Установка 
-
+Установка  
 composer require leon-mbs/ppolib
 
 Как  использовать
@@ -53,3 +52,6 @@ composer require leon-mbs/ppolib
    это  ускорит  обработку.
    
    
+   Получение информации о  полписи  
+   $info = \PPOLib\PPO::signinfo($answer) ;
+ 

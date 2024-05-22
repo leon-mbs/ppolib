@@ -308,10 +308,69 @@ class PPO
         $seq =  Sequence::fromDER($return);
         $status = $seq->at(0)->asSequence()->at(0)->asInteger()->number() ;
         if ($status != 0) {
-            throw new \Exception("TSP not granted. Status ".$status);
+            throw new \Exception("YSP not granted. Status ".$status);
         }      
         return $seq->at(1)->asSequence();
 
     }
+   
+   
+    /**
+    * инфолрмация  о подписи
+    * 
+    * @param mixed $message
+    * возвращает серийный  номер  сертификата, владельца, его  ИНН и ЄДРПОУ, дату и время   подписи
+    */
+    public static function signinfo($message) {
+        $ret=[];
+        $der = Sequence::fromDER($message);
+        $ctype = $der->at(0)->asObjectIdentifier()->oid();
 
+        if ($ctype != "1.2.840.113549.1.7.2") {
+            return $ret;
+        }   //signeddata
+
+        $sq5 = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
+        $sq5 = $sq5->at(0)->asSequence();
+
+        //1.2.804.2.1.1.1.1.2.1
+        $algo = $sq5->at(1)->asSet();
+        $algo = $algo->at(0)->asSequence();
+        //Gost34311
+        $algo = $algo->at(0)->asObjectIdentifier()->oid();
+
+        //data
+        $sqdata = $sq5->at(2)->asSequence();
+     
+        $ctype = $sqdata->at(0)->asObjectIdentifier()->oid();
+ 
+     
+        //cert
+        $sqcert = $sq5->at(3)->asTagged()->asImplicit(16)->asSequence();
+        $dercert = $sqcert->at(0)->asSequence()->toDer();
+
+        $cert = \PPOLib\Cert::load($dercert);
+
+        $ret['certserial'] = $cert->getSerial();
+        $ret['certowner'] = $cert->getOwner();
+        $ret['ownertin'] = $cert->getTIN();
+        $ret['owneripn'] = $cert->getIPN();
+ 
+        
+        //  $tbscert = $sqcert->at(0)->asSequence()  ;
+        //info
+        $signerinfo1 = $sq5->at(4)->asSet();
+        $signerinfo = $signerinfo1->at(0)->asSequence();
+
+       
+       
+        $a = $signerinfo->at(3)->asTagged()->asImplicit(16)->asSequence();
+        
+        $t = $a->at(3)->asSequence()->at(1)->asSet()->at(0)->asUTCTime()->dateTime()->getTimestamp()  ;
+        $ret['datesign']= date("Y-m-d H:i:s",$t);
+
+        return $ret;
+    }
+   
+    
 }
