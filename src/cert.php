@@ -114,10 +114,10 @@ class Cert
     }
 
     /**
-    * проверяет  keyusage
-    * 
+    * проверяет    на  использование  для  подписи  и/или  шифрования
+    * $op   sign encrypt
     */
-    public function isKeyUsage() {
+    public function isKeyUsage($op='sign') {
         $seq =  Sequence::fromDER($this->_raw);
         $seq = $seq->at(0)->asSequence();
         $keyid="";
@@ -129,9 +129,13 @@ class Cert
             $id = $item->at(0)->asObjectIdentifier()->oid() ;
             if($id=="2.5.29.15") {
                 $flag = $item->at(2)->asOctetString()->string();
-                $flaga = Util::bstr2array($flag)  ;
-
-                if($flaga[3] == 192)  {
+            
+                $bits =  \Sop\ASN1\Type\Primitive\BitString::fromDER($flag)->string();
+                $flaga = Util::bstr2array($bits)  ;      
+                if( $op=='sign' && ($flaga[0] & 0x80)  == 0x80)  {
+                    return  true;
+                }
+                if( $op=='encrypt' && ($flaga[0] & 0x08)  == 0x08)  {
                     return  true;
                 }
                 
