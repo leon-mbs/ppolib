@@ -279,14 +279,18 @@ class JKS
         }
     }
 
-    //возвращает  ключ  и соответствующий сертификат
-    public function getData() {
+    /**
+    * возвращает  ключ  и соответствующий сертификат
+    * 
+    * @param mixed $op   sign encrypt   для  подписи   или  шифрования
+    */
+    public function getData($op='sign') {
         //сравниваем  публичные  ключи
         foreach($this->keys as $key) {
             $pubk = $key->pub();
             foreach($this->certs as $cert) {
 
-                if($cert->isKeyUsage() ){;
+                if($cert->isKeyUsage($op) ){;
                     $cpub = $cert->pub();
                     if ($pubk->q->isequal($cpub->q)) {
                         return array( $key, $cert);
