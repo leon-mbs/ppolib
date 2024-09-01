@@ -233,12 +233,13 @@ class KeyStore
 
     /**
      *  извлечение  ключа и сертификата  из  jks  хпанилища
+     * @param mixed $op   sign encrypt   для  подписи   или  шифрования
      */
-    public static function loadjks($keydata, $pass) {
+    public static function loadjks($keydata, $pass,$op='sign') {
 
         $loader = new JKS($keydata, $pass);
 
-        return  $loader->getData();
+        return  $loader->getData($op);
 
     }
 
