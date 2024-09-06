@@ -232,7 +232,7 @@ class KeyStore
     }
 
     /**
-     *  извлечение  ключа и сертификата  из  jks  хпанилища
+     *  извлечение  ключа и сертификата  из  jks  хранилища
      * @param mixed $op   sign encrypt   для  подписи   или  шифрования
      */
     public static function loadjks($keydata, $pass,$op='sign') {

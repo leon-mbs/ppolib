@@ -9,6 +9,7 @@ use  Sop\ASN1\Type\Tagged\ImplicitlyTaggedType;
 class Cert
 {
     private $_publickey;
+    private $_dke=[];
     private $_raw;
 
 
@@ -32,6 +33,14 @@ class Cert
 
         $algo = $pki->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
         $curveparam = $pki->at(0)->asSequence()->at(1)->asSequence()->at(0) ;
+        $dke = $pki->at(0)->asSequence()->at(1)->asSequence();
+        $cnt = count($dke->elements()) ;
+        if($cnt>1) {
+           $dke = $pki->at(0)->asSequence()->at(1)->asSequence()->at(1)->asOctetString()->string() ;
+           $c->_dke = Util::bstr2array($dke);
+        }
+        
+        
         $curve = new Curve($curveparam, true);
 
         $pkey = $pki->at(1)->asBitString()->string();
@@ -69,7 +78,7 @@ class Cert
     * Имя  владельца  сертификата
     *
     */
-    public function getOwner() {
+    public function getOwnerName() {
         $seq =  Sequence::fromDER($this->_raw);
         $seq = $seq->at(0)->asSequence();
         $owner="";
@@ -159,6 +168,14 @@ class Cert
                 ->number();
 
         return $serial;
+    }   
+ 
+    public function getIssuerAndSerial() {
+        $seq =  Sequence::fromDER($this->_raw);
+        $seq = $seq->at(0)->asSequence();
+    
+        return  new Sequence($seq->at(3)->asSequence(),$seq->at(1)->asInteger()) ;
+       
     }   
 
     /**
@@ -285,7 +302,10 @@ class Cert
 
         return null;
     }     
-    
+   
+    public function getDKE(){
+        return $this->_dke;
+    } 
     
       
 }

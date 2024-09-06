@@ -25,18 +25,15 @@ composer require leon-mbs/ppolib
    Загрузка  jks файла (ПриватБанк)
    list($key,$cert) = \PPOLib\KeyStore::loadjks($jks,$password) ;
    
-   В случае  неверной  работы  jks  ключа  на PHP x64 ключ  можно  сконвертировать в  key-6.dat
-   (или  получить в  налоговой)  или  воспользоватся  сервером  подписи https://github.com/leon-mbs/internal-digital-signature-service
-   
-   
+ 
    Подпись  документа  или  команды  
-   $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert);
+   $signeddata=  \PPOLib\PPO::sign($message,$key,$cert);
 
    Открепленная  подпись (без данных)  
-   $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,true);
+   $signeddata=  \PPOLib\PPO::sign($message,$key,$cert,true);
 
    Подпись с  TSP отметкой  
-   $signeddata=  \PPOLib\PPO::sign('{"Command":"Objects"}'',$key,$cert,false,true);
+   $signeddata=  \PPOLib\PPO::sign($message,$key,$cert,false,true);
 
    
    Отправка  запроса  в  налоговую
@@ -52,6 +49,14 @@ composer require leon-mbs/ppolib
    это  ускорит  обработку.
    
    
-   Получение информации о  полписи  
+   Получение информации о  подписи  
    $info = \PPOLib\PPO::signinfo($answer) ;
  
+ 
+   Шифрование сообщения.  
+   Использутся  пара  ключ-сертификат для  шифрования а  также  сертификат  получателя
+   \PPOLib\PPO::encode($message,$forcert,$key,$keycert );
+
+   Дещифрование сообщения.  
+   Использутся  ключ  от сертификата  получателя   
+   \PPOLib\PPO::decode($message,$key );

@@ -255,7 +255,7 @@ class Gost
 
         return $clear;
     }
-
+   
     public function decrypt64_cfb($iv, $data) {
 
         $clear = Util::alloc(8);
@@ -272,6 +272,139 @@ class Gost
 
         return array($clear, $iv);
     }
+
+    public function mac($len, $data) {
+       $buf = Util::alloc(8) ;
+       $buf2 = Util::alloc(8) ;
+       for ($i=0;$i+8 <= count($data); $i+=8) {
+          $buf= $this->mac64($buf, array_slice($data,$i, $i+8));
+       }      
+
+        if ($i < count($data)) {
+            $data = array_slice($data,$i);
+            for ($i=0; $i<count($data); $i++) {
+                $buf2[i] = $data[$i];
+            }
+            $this->mac64($buf, $buf2);
+        }
+
+        if ($i === 8) {
+            for ($i=0; $i<count($buf2); $i++) {
+                $buf2[$i] = 0;
+            }
+            $this->mac64($buf, $buf2);
+        }
+
+        return $this->mac_out($buf, $len );
+
+
+       
+    }
+ 
+    public function mac_out($buf,$nbits) {
+        $nbytes= Util::rrr($nbits, 3) ;
+        $rembits = $nbits & 7;
+        $mask =$rembits?((1<$rembits)-1):0;
+     
+        $out = Util::alloc($nbytes) ;
+        for ($i=0;$i<$nbytes;$i++) {
+            $out[$i] = $buf[$i];
+        }
+        if ($rembits) {
+            $out[i] = $buf[i] & $mask;
+        }   
+       return $out;    
+    }
+    
+    public function mac64($buffer,$block) {
+       $n = [];
+       
+       for($i=0;$i<8;$i++){
+           $buffer[$i] ^= $block[$i];
+       }
+       $n[0] = $buffer[0]|($buffer[1]<<8)|($buffer[2]<<16)|($buffer[3]<<24);
+       $n[1] = $buffer[4]|($buffer[5]<<8)|($buffer[6]<<16)|($buffer[7]<<24);
+       
+       $n[1] ^= $this->pass($n[0]+$this->k[0]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[1]);
+       $n[1] ^= $this->pass($n[0]+$this->k[2]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[3]);
+
+       $n[1] ^= $this->pass($n[0]+$this->k[4]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[5]);
+       $n[1] ^= $this->pass($n[0]+$this->k[6]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[7]);
+       
+       $n[1] ^= $this->pass($n[0]+$this->k[0]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[1]);
+       $n[1] ^= $this->pass($n[0]+$this->k[2]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[3]);
+
+       $n[1] ^= $this->pass($n[0]+$this->k[4]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[5]);
+       $n[1] ^= $this->pass($n[0]+$this->k[6]); 
+       $n[0] ^= $this->pass($n[1]+$this->k[7]);
+ 
+       $buffer[0] = $n[0] & 0xff;  
+       $buffer[1] = Util::rrr($n[0], 8)  &0xff;
+       $buffer[2] = Util::rrr($n[0], 16)  &0xff; 
+       $buffer[3] = Util::rrr($n[0], 24) ;
+       $buffer[4] = $n[1] & 0xff;  
+       $buffer[5] = Util::rrr($n[1], 8)  & 0xff;
+       $buffer[6] = Util::rrr($n[1], 16)  & 0xff; 
+       $buffer[7] = Util::rrr($n[1], 24) ;
+       
+       return $buffer; 
+    }
+    
+    public function crypt_cfb($iv,$clear) {
+       $this->gamma = Util::alloc(8) ;
+       $cur_iv = Util::alloc(8) ;
+       $blocks = ceil(count($clear)/8);
+       $out = Util::alloc($blocks*8) ;
+
+       for ($idx=0; $idx < 8; $idx++) {
+          $cur_iv[$idx] = $iv[$idx];
+       }
+       $idx=0;
+       while ($idx < $blocks) {
+           $off = ($idx++) * 8;
+           list($_out,$cur_iv) = $this->crypt64_cfb($cur_iv, array_slice($clear,$off, $off + 8));
+           //, out.slice(off, off + 8)
+           for($i=0;$i<8;$i++ ) {
+              $out[$i+$off] = $_out[$i] ;
+           }
+        }
+        if (count($out) !== count($clear) ){
+            $out = array_slice($out,0,count($clear)) ;
+        }
+        return $out;        
+    }
+ 
+    public function crypt64_cfb($iv,$clear) {
+      
+        $gamma = $this->gamma;
+        $out=[];
+        $gamma=$this->crypt64($iv );
+        for ($j = 0; $j < 8; $j++) {
+            $out[$j] = $clear[$j] ^ $gamma[$j];
+            $iv[$j] = $out[$j];
+        }    
+        
+        return [$out,$iv];    
+    }
+    
+    public static  function gost_crypt($mode, $inp, $key, $iv) {
+        $gost= new  Gost();
+        $gost->key($key) ;
+        if($mode==1)  {
+          return  $gost->decrypt_cfb($iv, $inp) ;
+        }  else {
+          return  $gost->crypt_cfb($iv, $inp) ;            
+        }
+    }
+    
+    
 
 }
 

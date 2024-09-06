@@ -37,6 +37,7 @@ class Util
         }
         return $ss;
     }
+
     public static function norm32($r) {
         if(PHP_INT_SIZE!=8) {
             return $r;
@@ -139,6 +140,7 @@ class Util
         }
         return $a << $b ;
     }
+
     public static function str2array($str, $to8 = false) {
         $a = unpack('C*', $str);
 
@@ -152,15 +154,16 @@ class Util
         return $a;
     }
 
-    public static function alloc($length, $v = 0) {
+    public static function alloc($length, $v = 0,$rand=false) {
         $a = array();
         for ($i = 0; $i < $length; $i++) {
             $a[$i] = $v;
+            if($rand) {
+               $a[$i] = rand(0,255); 
+            }
         }
         return $a;
     }
-
-
 
     public static function bstr2array($str, $to8 = false) {
         $a = array();

@@ -196,8 +196,10 @@ class Field
 
     public function mulmod(Field $v) {
         $m = $this->mul($v);
+             
+   
         $r = $m->mod();
-        return $r;
+         return $r;
     }
 
     public function divmod(Field $v) {
@@ -210,24 +212,24 @@ class Field
 
         $bag = Field::get0();
         $shift = $this->clone();
-
-        for ($i = 0; $i < $v->getLength(); $i++) {
-
-            //  $bh = $bag->toString(2) ;
-
-
+     $l= $v->getLength()  ;
+ 
+        for ($i = 0; $i < $l; $i++) {
+          
             $bit = $v->testBit($i);
             if ($bit == 1) {
                 $bag = $bag->add($shift);
             }
-            //   $bh2 = $bag->toString(2) ;
+            
             $shift = $shift->shiftLeft(1);
+    
+   
         }
         $bag->curve = $this->curve;
         if ($bag->curve == null) {
             $bag->curve = $v->curve;
         }
-
+     
         return $bag;
     }
 

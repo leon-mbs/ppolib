@@ -2,6 +2,11 @@
  
 namespace PPOLib;
 
+use Sop\ASN1\Type\Constructed\Sequence;
+use Sop\ASN1\Type\Tagged\ImplicitlyTaggedType;
+use Sop\ASN1\Type\Primitive\OctetString;
+use Sop\ASN1\Type\Primitive\BitString;
+use Sop\ASN1\Type\Primitive\ObjectIdentifier;
 use PPOLib\Util;
 
 /**
@@ -144,4 +149,159 @@ class Priv
         return $sign;
     }
 
+    public function encrypt($message,Cert $forcert) {
+        $buf = Util::bstr2array($message);
+           
+        $cek = Util::alloc(32,0,true);
+        $ukm = Util::alloc(64,0,true);
+        $iv  = Util::alloc(8,0,true);
+        
+//$cek =[235, 70, 25, 37, 91, 135, 44, 22, 113, 11, 108, 51, 210, 133, 173, 124, 174, 118, 206, 2, 16, 197, 135, 179, 219, 233, 14, 107, 236, 144, 85, 86];
+//$ukm=[240, 38, 197, 91, 140, 161, 171, 196, 63, 147, 48, 155, 80, 72, 41, 91, 158, 215, 54, 29, 42, 156, 131, 129, 56, 118, 178, 89, 140, 97, 221, 46, 56, 52, 22, 107, 125, 29, 69, 143, 245, 73, 212, 17, 142, 158, 187, 129, 206, 202, 250, 224, 74, 203, 82, 139, 101, 235, 168, 151, 254, 237, 97, 240];
+//$iv=[255, 68, 42, 235, 191, 125, 160, 219];
+        
+        
+        $kek=$this->sharedKey($forcert->pub(),$ukm) ;
+        $wcek=$this->keywrap($kek, $cek, $iv);
+      
+        $ctext = \PPOLib\Algo\Gost::gost_crypt(0,$buf,$cek,$iv) ;
+        
+        $ret=[];
+        $ret['iv'] = $iv  ;
+        $ret['wcek'] = $wcek ;  
+        $ret['data'] = $ctext  ;  
+        $ret['ukm'] = $ukm ;
+        
+        return $ret;
+    }
+
+    public function keywrap($kek, $cek, $iv){  
+       $cekicv = Util::alloc(40);
+       $temp2 =  Util::alloc(44) ;
+       $temp3 =  Util::alloc(48) ;
+       $gost  =  new \PPOLib\Algo\Gost() ;
+       $gost->key($kek) ;
+       $icv = $gost->mac(32, $cek);
+   
+        for ($idx=0; $idx < 32; $idx++) {
+            $cekicv[$idx] = $cek[$idx];
+        }
+        for ($idx=32; $idx < 40; $idx++) {
+            $cekicv[$idx] = $icv[$idx - 32] ?? 0;
+        }      
+    
+        $temp1 =  $gost->crypt_cfb($iv, $cekicv);
+     
+        for ($idx=0; $idx < 8; $idx++) {
+           $temp2[$idx] = $iv[$idx];
+        }
+        for ($idx=8; $idx < 44; $idx++) {
+            $temp2[$idx] = $temp1[$idx - 8];
+        }
+
+        for($idx=0; $idx < 48; $idx++) {
+            $temp3[$idx] = $temp2[44 - $idx - 1];
+        }    
+     
+        $result =  $gost->crypt_cfb([   0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05], $temp3);
+        
+        return array_slice($result,0,44)  ; 
+ 
+   
+    }
+    
+    public function sharedKey(Pub $pub,$ukm) {
+        $zz = $this->derive($pub) ;
+        if($zz[0]==0) {
+            $zz = array_slice($zz,1) ;
+        }
+        $counter = [0,0,0,1] ;
+        
+        $salt = $this->salt($ukm) ;
+        $kek_input = Util::alloc(count($zz)+count($counter)+ count($salt)) ;       
+        $kek_input= array_merge($zz,$counter,$salt)  ;
+        $kek_input = \PPOLib\Algo\Hash::gosthash($kek_input);
+        return $kek_input;
+    }
+
+    public function derive(Pub $pub ) {
+        $pointQ = $pub->q;
+        $kf = Field::fromInt($this->d->curve->kofactor[0] );
+           
+ 
+        $pointZ = $pointQ->mul($this->d->mulmod($kf)); 
+        $b = $pointZ->x->toString(16) ;
+        $bufZZ = Util::hex2array($b) ;
+        $cut= count($bufZZ)   - ceil($this->d->curve->m/8) ;
+        return array_slice($bufZZ,$cut) ;
+    }
+    
+    public function salt($ukm) {
+     
+        $dataid = new ObjectIdentifier("1.2.804.2.1.1.1.1.1.1.5");  
+        $data = new Sequence($dataid,new \Sop\ASN1\Type\Primitive\NullType()) ;
+        
+        $s1 = new OctetString(Util::array2bstr($ukm));
+        $s1 = new Sequence($s1);
+        $s1 = new ImplicitlyTaggedType(0, $s1);
+        $s2 = new OctetString(Util::array2bstr([0,0,1,0]));
+        $s2 = new Sequence($s2);
+        $s2 = new ImplicitlyTaggedType(2, $s2);
+        $data = new Sequence($data,$s1,$s2) ;
+        $ret=$data->toDER()  ;
+
+        return Util::bstr2array($ret );
+    } 
+    
+    
+    public function decrypt($data,Pub $pub,$p) {
+        
+        $kek= $this->sharedKey($pub,$p['ukm']) ;
+        $cek= $this->keyunwrap($kek, $p['wcek']) ;
+        $dec= \PPOLib\Algo\Gost::gost_crypt(1,$data,$cek,$p['iv']) ; 
+        $dec = array_slice($dec,0,count($data))  ;     
+        return Util::array2bstr($dec)  ;
+    } 
+    
+    public function keyunwrap($kek,   $wcek){  
+       $gost  =  new \PPOLib\Algo\Gost() ;
+       $gost->key($kek);  
+       
+       $icv = Util::alloc(4) ;
+       $iv = Util::alloc(8) ;
+       $temp1 = Util::alloc(40) ;
+       $temp2 = Util::alloc(44) ;
+       $temp3 = $gost->decrypt_cfb([ 0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05], $wcek);
+      
+       
+        for($idx=0; $idx < 44; $idx++) {
+            $temp2[$idx] = $temp3[44 - $idx - 1];
+        }
+
+        for ($idx = 0; $idx < 8; $idx++ ) {
+            $iv[$idx] = $temp2[$idx];
+        }
+        for ($idx = 0; $idx < 36; $idx++) {
+            $temp1[$idx] = $temp2[$idx + 8];
+        }
+
+        $cekicv = $gost->decrypt_cfb($iv, $temp1);
+        for ($idx = 0; $idx < 4; $idx++) {
+            $icv[$idx] = $cekicv[$idx + 32];
+        }
+
+        $icv_check = $gost->mac(32, array_slice($cekicv,0, 32));
+  
+        $err =  $icv[0] ^ $icv_check[0];
+        $err |= $icv[1] ^ $icv_check[1];
+        $err |= $icv[2] ^ $icv_check[2];
+        $err |= $icv[3] ^ $icv_check[3];        
+        
+        if($err !== 0) {
+            throw new \Exception('Invalid decode');
+        }
+        
+        return array_slice($cekicv,0, 32);
+    }
+   
 }

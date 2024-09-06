@@ -223,7 +223,7 @@ class PPO
     }
 
     /**
-     * отправка  запроса
+     * отправка  запроса на  фискальный  сервер
      *
      * @param mixed $data   подписаные  данные
      * @param mixed $type   cmd  или  doc
@@ -316,7 +316,7 @@ class PPO
    
    
     /**
-    * инфолрмация  о подписи
+    * информация  о подписи
     * 
     * @param mixed $message
     * возвращает серийный  номер  сертификата, владельца, его  ИНН и ЄДРПОУ, дату и время   подписи
@@ -372,5 +372,106 @@ class PPO
         return $ret;
     }
    
+    /**
+   * шифрование для налоговой
+   * 
+   * @param mixed $message  сообщение
+   * @param Cert $forcert   сертификат получателя для  шифрования
+   * @param Priv $key приватный  ключ
+   * @param Cert $cert  сертификат  ключа 
+   * @return string
+   */
+    public static function encode($message, Cert $forcert,  Priv $key, Cert $cert ) {
+          
+        $enc = $key->encrypt($message,$forcert);
+      
+
+        $is=$cert->getIssuerAndSerial() ;
+        $data2= new ImplicitlyTaggedType(0, new Sequence($is));
     
+        $ukm= Util::array2bstr($enc['ukm'] ) ;
+        $wcek= Util::array2bstr($enc['wcek'] ) ;
+        $iv= Util::array2bstr($enc['iv'] ) ;
+        $data= Util::array2bstr($enc['data'] ) ;
+        
+        $data3= new ImplicitlyTaggedType(1, new Sequence(new OctetString($ukm)))   ;
+    
+         
+        $dataid = new ObjectIdentifier("1.2.804.2.1.1.1.1.1.1.5");  
+        $data4_ = new Sequence($dataid,new \Sop\ASN1\Type\Primitive\NullType()) ;
+        $dataid = new ObjectIdentifier(" 1.2.804.2.1.1.1.1.3.4");  
+        $data4 = new Sequence($dataid,$data4_) ;
+
+        $is=$forcert->getIssuerAndSerial() ;
+         
+        $data5= new Sequence( new Sequence($is,new OctetString($wcek)));
+        
+        $version = new Integer(3);
+        $KeyAgreeRecipientInfo = new Sequence($version,$data2,$data3,$data4,$data5);
+        $KeyAgreeRecipientInfo = new ImplicitlyTaggedType(1,$KeyAgreeRecipientInfo );
+        
+                                                     
+        $params  = new  Sequence(new OctetString( $iv ),new OctetString( Util::array2bstr($cert->getDKE() )));
+        $ContentEncryptionAlgorithmIdentifier = new  Sequence(new ObjectIdentifier("1.2.804.2.1.1.1.1.1.1.3"),$params);
+        
+        $e = new ImplicitlyTaggedType(0, new OctetString( $data) );
+        $encryptedContentInfo = new  Sequence(new ObjectIdentifier("1.2.840.113549.1.7.1"),$ContentEncryptionAlgorithmIdentifier,$e);
+        
+        $encoded = new  Sequence(new Integer(2),new Set($KeyAgreeRecipientInfo),$encryptedContentInfo); 
+    
+        $enveloped = new  Sequence(new ObjectIdentifier(" 1.2.840.113549.1.7.3 "),new ImplicitlyTaggedType(0,new Sequence($encoded)));
+        
+         
+        $ret =  $enveloped->toDER();
+   
+        return $ret;
+    }
+
+    /**
+    * дешифрование
+    * 
+    * @param mixed $message  сообщение
+    * @param Priv $key  ключ, соответствуюший сертификату  для  котрого зашифровано
+    */
+    public static function decode($message   ,  Priv $key   ) {
+  
+        $der = Sequence::fromDER($message);
+        $ctype = $der->at(0)->asObjectIdentifier()->oid();
+
+        if ($ctype != "1.2.840.113549.1.7.3") {
+            return;
+        }   //envelopeddata
+     
+        $encoded = $der->at(1)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
+        $KeyAgreeRecipientInfo =  $encoded->at(1)->asSet();
+        $KeyAgreeRecipientInfo=$KeyAgreeRecipientInfo->at(0)->asTagged()->asImplicit(16)->asSequence()  ;
+      
+        $encryptedContentInfo =  $encoded->at(2)->asSequence();
+       
+        $e = $encryptedContentInfo->at(2)->asTagged()->asImplicit(4)->asOctetString()->string() ;
+        $data= Util::bstr2array($e) ;
+      
+        $ContentEncryptionAlgorithmIdentifier = $encryptedContentInfo->at(1)->asSequence();
+        $params= $ContentEncryptionAlgorithmIdentifier->at(1)->asSequence();
+        $iv=$params->at(0)->asOctetString()->string() ;
+      //  $dke=$params->at(1)->asOctetString()->string();
+      
+        $data5=$KeyAgreeRecipientInfo->at(4)->asSequence() ;
+        $wcek =$data5->at(0)->asSequence()->at(1)->asOctetString()->string()  ;
+        $data3=$KeyAgreeRecipientInfo->at(2) ;
+        $ukm =$data3->asTagged()->asImplicit(16)->asSequence()->at(0)->asOctetString()->string()  ;
+         
+        $p=[];
+        $p['wcek']= Util::bstr2array( $wcek);
+        $p['ukm']= Util::bstr2array( $ukm);
+        $p['iv']= Util::bstr2array( $iv);
+          
+        $pub=$forcert->pub()  ;
+        $pub=$key->pub()  ;
+        
+        $dec = $key->decrypt($data,$pub, $p);
+               
+        return  $dec;
+    }    
+ 
 }
