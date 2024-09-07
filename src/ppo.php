@@ -143,8 +143,8 @@ class PPO
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
 
         if ($ctype != "1.2.840.113549.1.7.2") {
-            return;
-        }   //signeddata
+             throw new \Exception("Not SignedData");
+        }    
 
         $sq5 = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
         $sq5 = $sq5->at(0)->asSequence();
@@ -439,8 +439,8 @@ class PPO
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
 
         if ($ctype != "1.2.840.113549.1.7.3") {
-            return;
-        }   //envelopeddata
+             throw new \Exception("Not EnvelopedData");
+        }   
      
         $encoded = $der->at(1)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
         $KeyAgreeRecipientInfo =  $encoded->at(1)->asSet();
