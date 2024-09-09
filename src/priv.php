@@ -200,7 +200,7 @@ class Priv
         }
 
         for($idx=0; $idx < 48; $idx++) {
-            $temp3[$idx] = $temp2[44 - $idx - 1];
+            $temp3[$idx] = $temp2[44 - $idx - 1] ?? 0;
         }    
      
         $result =  $gost->crypt_cfb([   0x4a, 0xdd, 0xa2, 0x2c, 0x79, 0xe8, 0x21, 0x05], $temp3);

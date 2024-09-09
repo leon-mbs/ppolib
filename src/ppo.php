@@ -466,7 +466,6 @@ class PPO
         $p['ukm']= Util::bstr2array( $ukm);
         $p['iv']= Util::bstr2array( $iv);
           
-        $pub=$forcert->pub()  ;
         $pub=$key->pub()  ;
         
         $dec = $key->decrypt($data,$pub, $p);

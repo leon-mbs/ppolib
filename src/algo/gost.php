@@ -387,7 +387,7 @@ class Gost
         $out=[];
         $gamma=$this->crypt64($iv );
         for ($j = 0; $j < 8; $j++) {
-            $out[$j] = $clear[$j] ^ $gamma[$j];
+            $out[$j] = ($clear[$j]??0)  ^ $gamma[$j];
             $iv[$j] = $out[$j];
         }    
         
