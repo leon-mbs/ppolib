@@ -19,7 +19,7 @@ composer require leon-mbs/ppolib
    $password - пароль  к  ключу
    
    Поскольку  распаковка  происходит  довольно  медленно, обьекты     $cert и $key  следует 
-   положить  в  сессию  или  сериализовать  и спрятать в  надежном  хранилище для дальнейшего использования
+   положить  в  сессию  или  сериализовать в  файлы  и спрятать в  надежном  хранилище для дальнейшего использования
    
    
    Загрузка  jks файла (ПриватБанк)
@@ -81,8 +81,8 @@ composer require leon-mbs/ppolib
    упаковываем  
    $transport=\PPOLib\DFS::encodeCrypt($encoded,$h,$keycert ) ;
 
-   если надо  подписать      ..
-   $signed= \PPOLib\PPO::sign($transport,$key,$keycert);  
+   если надо  подписать        ..
+   $signed= \PPOLib\PPO::sign($transport,$key,$keycert);    
    $transport=\PPOLib\DFS::encodeSign($signed,$h ) ;
       
    
