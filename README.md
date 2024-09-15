@@ -81,8 +81,8 @@ composer require leon-mbs/ppolib
    упаковываем  
    $transport=\PPOLib\DFS::encodeCrypt($encoded,$h,$keycert ) ;
 
-   если надо  подписать    ..
-   $signed= \PPOLib\PPO::sign($transport,$key,$keycert);
+   если надо  подписать      ..
+   $signed= \PPOLib\PPO::sign($transport,$key,$keycert);  
    $transport=\PPOLib\DFS::encodeSign($signed,$h ) ;
       
    
