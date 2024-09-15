@@ -84,6 +84,10 @@ composer require leon-mbs/ppolib
    если надо  подписать  
    $signed= \PPOLib\PPO::sign($transport,$key,$keycert);    
    $transport=\PPOLib\DFS::encodeSign($signed,$h ) ;
+   
+   
+   распаковка  
+   \PPOLib\DFS::decode($ticket ) ;
       
    
    

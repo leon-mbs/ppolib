@@ -20,7 +20,8 @@ class DFS
       if($cert != null){
          $docs['CERTCRYPT']=$cert->asBinary();  ;    
       }
-      $docs['UA1_SIGN']=$signeddata;    
+      $docs['UA1_SIGN']=$signeddata; 
+      
       return self::encode($docs,$header) ;
    }
 
@@ -97,9 +98,76 @@ class DFS
         return $ret;
    }
  
+   /**
+   * разпаковка
+   * 
+   * @param mixed $data
+   */
+   public  static function  decode($data) {
+       $ret=[];
+       while(strlen($data)>0)  {
+           $hp= strpos($data,"TRANSPORTABLE")  ;
+           if($hp === 0) {
+               $len= substr($data,14,4) ;
+               $dd= self::_U32($len);
+               $hd= substr($data,18,$dd )  ;
+               
+               $ret['header'] =[];
+               foreach(explode("\r\n",$hd)  as $s) {
+                  if(strpos($s,'=')>0) {
+                    $str=explode("=",$s)  ;    
+                    $ret['header'][$str[0]] = trim($str[1]) ; 
+                  }
+                  
+                  
+               }
+               $data = substr($data,18+$dd)  ;
+               
+           }
+           $us= strpos($data,"UA1_SIGN")  ;
+           if($us === 0) {
+               $len= substr($data,9,4) ;
+               $dd= self::_U32($len);
+               $sd= substr($data,13,$dd )  ;
+               $ret['UA1_SIGN'] = $sd; 
+               
+               $data = substr($data,13+$dd)  ;
+   
+                     
+           }
+           $us= strpos($data,"UA1_CRYPT")  ;
+           if($us === 0) {
+               $len= substr($data, 10,4) ;
+               $dd= self::_U32($len);
+               $sd= substr($data, 14,$dd )  ;
+               $ret['UA1_CRYPT'] = $sd;     
+               $data = substr($data,14+$dd)  ;
+ 
+          }
+           $us= strpos($data,"CERTCRYPT")  ;
+           if($us === 0) {
+               $len= substr($data,10,4) ;
+               $dd= self::_U32($len);
+               $sd= substr($data,14,$dd )  ;
+               $ret['CERTCRYPT'] = $sd;     
+               $data = substr($data,14+$dd)  ;
+ 
+          }
+       } 
+       return $ret;
+       
+   }
+ 
+ 
+ 
    //упаковка в LE
    private static function U32($len) {
        $p=  pack('V',$len) ;
        return $p;
+   }    
+   //распаковка LE
+   private static function _U32($len) {
+       $l=unpack('V',$len) ;
+       return  array_shift($l) ;
    }  
 }
