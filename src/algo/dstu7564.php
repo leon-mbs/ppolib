@@ -8,6 +8,8 @@ use PPOLib\Util;
 * хеширование  согласно ДСТУ 7564
 * портировано с  https://github.com/storojs72/bc-dstu-csharp
 */
+
+/*
 class DSTU7564
 {
     public const ROWS = 8;
@@ -409,3 +411,4 @@ class DSTU7564
     }
 
 }
+*/

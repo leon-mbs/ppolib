@@ -60,3 +60,31 @@ composer require leon-mbs/ppolib
    Дещифрование сообщения.  
    Использутся  ключ  от сертификата  получателя   
    \PPOLib\PPO::decode($message,$key );
+   
+   
+   Для отправки  в электронный кабинет  используются функции  
+  
+   
+   \PPOLib\DFS::encodeCrypt($encodedData,$h,$keycert ) ;  
+   \PPOLib\DFS::encodeSign($signedData,$h ) ;
+
+   заголовок  
+   $h=\PPOLib\DFS::createHeader($keycert,"admin@gmail.com","test.txt") ;  
+   
+   Примерная последовательтность  
+
+   шифруем данные  
+   $encoded= \PPOLib\PPO::encode($message,$forcert,$key,$keycert);
+
+   $h=\PPOLib\DFS::createHeader($keycert,"admin@gmail.com","test.txt") ;
+
+   упаковываем  
+   $transport=\PPOLib\DFS::encodeCrypt($encoded,$h,$keycert ) ;
+
+   если надо  подписать    ..
+   $signed= \PPOLib\PPO::sign($transport,$key,$keycert);
+   $transport=\PPOLib\DFS::encodeSign($signed,$h ) ;
+      
+   
+   
+   

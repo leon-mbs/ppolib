@@ -16,7 +16,7 @@ use Sop\ASN1\Type\Primitive\UTCTime;
 class PPO
 {
     /**
-     * Подписывает и упаковывает  документ  или  команду  для  отправки
+     * Подписывает    документ  или  команду  для  отправки
      *
      * @param mixed $message   данные
      * @param Priv $key   приватный ключ

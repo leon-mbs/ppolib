@@ -97,8 +97,8 @@ class Field
 
     public function shiftRightCycle($n) {
         $s = gmp_strval($this->value, 2);
-        ;
-        for ($i = 0; $i < n; $i++) {
+        
+        for ($i = 0; $i < $n; $i++) {
             $last = substr($s, strlen($s) - 1, 1);
             $s = $last . substr($s, 0, strlen($s) - 1);
         }

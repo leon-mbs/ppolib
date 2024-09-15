@@ -306,6 +306,9 @@ class Cert
     public function getDKE(){
         return $this->_dke;
     } 
+    public function asBinary(){
+        return $this->_raw;
+    } 
     
       
 }
