@@ -433,7 +433,7 @@ class PPO
     * @param mixed $message  сообщение
     * @param Priv $key  ключ, соответствуюший сертификату  для  котрого зашифровано
     */
-    public static function decode($message   ,  Priv $key   ) {
+    public static function decode($message   ,  Priv $forkey    ) {
   
         $der = Sequence::fromDER($message);
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
@@ -466,9 +466,9 @@ class PPO
         $p['ukm']= Util::bstr2array( $ukm);
         $p['iv']= Util::bstr2array( $iv);
           
-        $pub=$key->pub()  ;
+        $pub=$forkey->pub()  ;
         
-        $dec = $key->decrypt($data,$pub, $p);
+        $dec = $forkey->decrypt($data,$pub, $p);
                
         return  $dec;
     }    

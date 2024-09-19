@@ -105,53 +105,35 @@ class DFS
    */
    public  static function  decode($data) {
        $ret=[];
+       $watchdog=20;
        while(strlen($data)>0)  {
-           $hp= strpos($data,"TRANSPORTABLE")  ;
-           if($hp === 0) {
-               $len= substr($data,14,4) ;
+           $pos= strpos($data,"\0");
+        
+           if($pos > 0 ){
+               $label=substr($data,0,$pos )  ;
+               $pos++;
+               $len= substr($data,$pos,4) ;
                $dd= self::_U32($len);
-               $hd= substr($data,18,$dd )  ;
+               $content= substr($data,$pos+4,$dd )  ;
+               $data = substr($data,$pos+4+$dd)  ;               
+               $ret[$label]= $content;  
                
-               $ret['header'] =[];
-               foreach(explode("\r\n",$hd)  as $s) {
-                  if(strpos($s,'=')>0) {
-                    $str=explode("=",$s)  ;    
-                    $ret['header'][$str[0]] = trim($str[1]) ; 
-                  }
+               if($label==="TRANSPORTABLE" || $label==="ZPOSTTRANSPORTABLE") {
+                   $ret[$label] =[];
+                   foreach(explode("\r\n",$content)  as $s) {
+                      if(strpos($s,'=')>0) {
+                        $str=explode("=",$s)  ;    
+                        $ret[$label][$str[0]] = trim($str[1]) ; 
+                      }
                   
                   
+                   }      
                }
-               $data = substr($data,18+$dd)  ;
-               
+                      
            }
-           $us= strpos($data,"UA1_SIGN")  ;
-           if($us === 0) {
-               $len= substr($data,9,4) ;
-               $dd= self::_U32($len);
-               $sd= substr($data,13,$dd )  ;
-               $ret['UA1_SIGN'] = $sd; 
-               
-               $data = substr($data,13+$dd)  ;
-   
-                     
-           }
-           $us= strpos($data,"UA1_CRYPT")  ;
-           if($us === 0) {
-               $len= substr($data, 10,4) ;
-               $dd= self::_U32($len);
-               $sd= substr($data, 14,$dd )  ;
-               $ret['UA1_CRYPT'] = $sd;     
-               $data = substr($data,14+$dd)  ;
- 
-          }
-           $us= strpos($data,"CERTCRYPT")  ;
-           if($us === 0) {
-               $len= substr($data,10,4) ;
-               $dd= self::_U32($len);
-               $sd= substr($data,14,$dd )  ;
-               $ret['CERTCRYPT'] = $sd;     
-               $data = substr($data,14+$dd)  ;
- 
+         
+          if( --$watchdog < 0) {
+              break;
           }
        } 
        return $ret;
@@ -165,7 +147,7 @@ class DFS
        $p=  pack('V',$len) ;
        return $p;
    }    
-   //распаковка LE
+   //распаковка с LE
    private static function _U32($len) {
        $l=unpack('V',$len) ;
        return  array_shift($l) ;
