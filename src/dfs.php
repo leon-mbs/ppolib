@@ -105,15 +105,18 @@ class DFS
    */
    public  static function  decode($data) {
        $ret=[];
-       $watchdog=20;
-       while(strlen($data)>0)  {
-           $pos= strpos($data,"\0");
+      
+       while(true)  {
+           $pos=intval(strpos($data,"\0") );
         
            if($pos > 0 ){
                $label=substr($data,0,$pos )  ;
                $pos++;
                $len= substr($data,$pos,4) ;
                $dd= self::_U32($len);
+               if($dd > strlen($data)){
+                   break;
+               }
                $content= substr($data,$pos+4,$dd )  ;
                $data = substr($data,$pos+4+$dd)  ;               
                $ret[$label]= $content;  
@@ -130,11 +133,11 @@ class DFS
                    }      
                }
                       
+           } else {
+               break; 
            }
          
-          if( --$watchdog < 0) {
-              break;
-          }
+        
        } 
        return $ret;
        
