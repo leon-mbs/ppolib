@@ -99,51 +99,45 @@ class DFS
    }
  
    /**
-   * разпаковка
+   * распаковка
    * 
    * @param mixed $data
    */
    public  static function  decode($data) {
        $ret=[];
-      
+       $watchdoc=50;
+       
        while(true)  {
-           $pos=intval(strpos($data,"\0") );
+           $pos = intval(strpos($data,"\0") );
         
            if($pos > 0 ){
                $label=substr($data,0,$pos )  ;
                $pos++;
                $len= substr($data,$pos,4) ;
                $dd= self::_U32($len);
-               if($dd > strlen($data)){
-                   break;
-               }
+      
                $content= substr($data,$pos+4,$dd )  ;
                $data = substr($data,$pos+4+$dd)  ;               
-               $ret[$label]= $content;  
+               $ret[$label] = $content;  
                
                if($label==="TRANSPORTABLE" || $label==="ZPOSTTRANSPORTABLE") {
-                   $ret[$label] =[];
+                   $ret[$label] = [];
                    foreach(explode("\r\n",$content)  as $s) {
-                      if(strpos($s,'=')>0) {
-                        $str=explode("=",$s)  ;    
-                        $ret[$label][$str[0]] = trim($str[1]) ; 
+                      if(strpos($s,'=') > 0) {
+                          $str=explode("=",$s)  ;    
+                          $ret[$label][$str[0]] = trim($str[1]) ; 
                       }
-                  
-                  
                    }      
                }
-                      
            } else {
                break; 
            }
-         
-        
+           if(--$watchdoc < 0){
+               break;  
+           }
        } 
        return $ret;
-       
    }
- 
- 
  
    //упаковка в LE
    private static function U32($len) {

@@ -43,10 +43,9 @@ composer require leon-mbs/ppolib
    
    Если  отправляется  документ  ответом  будут  подписанные  данные, из  которых нужно вынуть документ ответа (обычно  xml)
 
-   $data = \PPOLib\PPO::decrypt($answer,true) ;
+   $data = \PPOLib\PPO::decrypt($answer ) ;
    
-   Если  предполагать  что ответ  с  налоговой  будет  подписан  верно  то  второй параметр (проверка  подписи) можно не  указывать
-   это  ускорит  обработку.
+   Если ответ  с ФС то он  будет  подписан  верно  и моджно поставить второй параметр  true что  ускорит  обработку.
    
    
    Получение информации о  подписи  
@@ -63,7 +62,6 @@ composer require leon-mbs/ppolib
    
    
    Для отправки  в электронный кабинет  используются функции  
-  
    
    \PPOLib\DFS::encodeCrypt($encodedData,$h,$keycert ) ;  
    \PPOLib\DFS::encodeSign($signedData,$h ) ;
@@ -71,7 +69,7 @@ composer require leon-mbs/ppolib
    заголовок  
    $h=\PPOLib\DFS::createHeader($keycert,"admin@gmail.com","test.txt") ;  
    
-   Примерная последовательтность  
+   Примерная последовательность  
 
    шифруем данные  
    $encoded= \PPOLib\PPO::encode($message,$forcert,$key,$keycert);
