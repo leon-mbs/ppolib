@@ -8,11 +8,7 @@
         "sop/asn1": "4.1.1" 
     },
  
-    "authors": [
-        {
-             "name": "Леонид Мартынюк" 
-        }
-    ],
+ 
     "autoload" : {
         "files" : ["src/autoload.php"]
     }
