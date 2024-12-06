@@ -180,7 +180,7 @@ class Cert
 
     /**
     * дата окончания
-    * @return  timestamp
+    * @return mixed timestamp
     */
     public function getEndDate() {
         $seq =  Sequence::fromDER($this->_raw);
@@ -194,7 +194,7 @@ class Cert
 
     /**
     * дата начала
-    * @return  timestamp
+    * @return  mixed timestamp
     */
     public function getStartDate() {
         $seq =  Sequence::fromDER($this->_raw);

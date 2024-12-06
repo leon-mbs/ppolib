@@ -122,9 +122,9 @@ class SHA1
         $c = $this->h2;
         $d = $this->h3;
         $e = $this->h4;
-        $f;
-        $j;
-        $t;
+        $f=0;
+        $j=0;
+        $t=0;
 
         for ($j = 16; $j < 80; ++$j) {
             $t = $this->blocks[$j - 3] ^ $this->blocks[$j - 8] ^ $this->blocks[$j - 14] ^ $this->blocks[$j - 16];

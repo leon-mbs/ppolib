@@ -283,7 +283,7 @@ class Gost
         if ($i < count($data)) {
             $data = array_slice($data,$i);
             for ($i=0; $i<count($data); $i++) {
-                $buf2[i] = $data[$i];
+                $buf2[$i] = $data[$i];
             }
             $this->mac64($buf, $buf2);
         }
@@ -311,7 +311,7 @@ class Gost
             $out[$i] = $buf[$i];
         }
         if ($rembits) {
-            $out[i] = $buf[i] & $mask;
+            $out[$i] = $buf[$i] & $mask;
         }   
        return $out;    
     }
