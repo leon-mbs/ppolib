@@ -431,7 +431,7 @@ class PPO
     * дешифрование
     * 
     * @param mixed $message  сообщение
-    * @param Priv $key  ключ, соответствуюший сертификату  для  котрого зашифровано
+    * @param Priv $forkey  ключ, соответствуюший сертификату  для  котрого зашифровано
     */
     public static function decode($message   ,  Priv $forkey    ) {
   

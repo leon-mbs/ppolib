@@ -39,7 +39,7 @@ class Gost
 
     }
 
-    public function key($k): void {
+    public function key($k):   {
 
         for ($i = 0, $j = 0; $i < 8; $i++, $j += 4) {
             $this->k[$i] = $k[$j] | ($k[$j + 1] << 8) | ($k[$j + 2] << 16) | ($k[$j + 3] << 24);
