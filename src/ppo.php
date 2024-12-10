@@ -411,7 +411,12 @@ class PPO
         $KeyAgreeRecipientInfo = new ImplicitlyTaggedType(1,$KeyAgreeRecipientInfo );
         
                                                      
-        $params  = new  Sequence(new OctetString( $iv ),new OctetString( Util::array2bstr($cert->getDKE() )));
+        $dke= Util::array2bstr($cert->getDKE() ) ;
+        if(strlen($dke ??'')>0)  {
+           $params  = new  Sequence(new OctetString( $iv ),new OctetString( $dke ));
+        }   else {
+           $params  = new  Sequence(new OctetString( $iv ) );
+        }         
         $ContentEncryptionAlgorithmIdentifier = new  Sequence(new ObjectIdentifier("1.2.804.2.1.1.1.1.1.1.3"),$params);
         
         $e = new ImplicitlyTaggedType(0, new OctetString( $data) );

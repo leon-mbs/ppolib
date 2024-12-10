@@ -4,7 +4,7 @@
     "license" : "MIT",
     "homepage": "https://github.com/leon-mbs/ppolib",
     "require": {
-        "php": "^8.0.0",
+        "php": ">7.4.0",
         "sop/asn1": "~4.1.1" 
     },
  
