@@ -94,7 +94,14 @@ class Cert
 
         return $owner;
     }
-
+    /**
+    * @deprecated
+    * 
+    */
+    public function getOwner() {
+         return $this->getOwnerName() ;       
+   Ъ}
+ 
     /**
     * возвращает  идентификатор  ключа
     *
