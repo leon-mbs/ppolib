@@ -99,8 +99,8 @@ class Cert
     * 
     */
     public function getOwner() {
-         return $this->getOwnerName() ;       
-   Ъ}
+         return $this->getOwnerName();      
+    }
  
     /**
     * возвращает  идентификатор  ключа
