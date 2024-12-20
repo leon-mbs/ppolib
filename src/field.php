@@ -237,5 +237,18 @@ class Field
             $v = $v->add($u->shiftLeft($j));
         }
         return $u;
+    } 
+    
+    public function buf8(){
+        $s=  $this->toString(16)  ;
+      
+        $a2= str_split($s,2) ;
+        $buf=[];
+        foreach($a2 as $i) {
+           $buf[]= hexdec($i) ;  
+        }      
+       
+        return $buf;
     }
+    
 }

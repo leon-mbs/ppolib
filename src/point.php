@@ -109,5 +109,17 @@ class Point
 
         return ($this->x->is0()) && ($this->y->is0());
     }
-
+   
+    public function compress() {
+        
+        $x_inv = $this->x->invert();
+        $tmp = $x_inv->mulmod($this->y);
+        $trace = $tmp->trace();
+        if ($trace === 1) {
+           $this->x->setBit(0,1);
+        }  else {
+           $this->x->setBit(0,0);
+        }
+        return $this->x;
+    }
 }

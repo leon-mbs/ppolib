@@ -151,10 +151,12 @@ class PPO
 
         //1.2.804.2.1.1.1.1.2.1
         $algo = $sq5->at(1)->asSet();
-        $algo = $algo->at(0)->asSequence();
-        //Gost34311
-        $algo = $algo->at(0)->asObjectIdentifier()->oid();
+        if(count($algo)>0)  {
+            $algo = $algo->at(0)->asSequence();
+            //Gost34311
+            $algo = $algo->at(0)->asObjectIdentifier()->oid();
 
+        }
         //data
         $sqdata = $sq5->at(2)->asSequence();
         $xml = null;
@@ -477,5 +479,125 @@ class PPO
                
         return  $dec;
     }    
+
+   /**
+   * загрузка  сертификата
+   * 
+   * @param mixed $keydata    данные  с  файла
+   * @param mixed $pass   пароль  к ключу
+   * @param mixed $op   sign encrypt   для  подписи   или  шифрования
+   * @return  array возвращает  пару  ключ-сертификат и бинарную  строку для сохранения сертификата  в  файл 
+   */
+    public static function fetchCert(   $keydata, $pass, $op='sign')  {
+        
+        $keys =  \PPOLib\KeyStore::parse($keydata, $pass);
+            
+      
+        $keyids=[[],[]];
+      
+        $pub = $keys[0]->pub()  ;
+        $keyids[0]= $pub->keyid()  ;
+        $pub = $keys[1]->pub()  ;
+        $keyids[1]= $pub->keyid()  ;
+   
+        $ct=\PPOLib\Util::alloc(120) ;
+      
+        $i=12;
+        foreach($keyids[0] as $v) {
+           $ct[$i++]=$v; 
+        }
+        $i=44;
+        foreach($keyids[1] as $v) {
+           $ct[$i++]=$v; 
+        }
+       
+        $ct[0x6C] = 0x1;
+        $ct[0x70] = 0x1;
+        $ct[0x08] = 2;
+        $ct[0] = 0x0D;       
+  
+        $data  =  \PPOLib\Util::array2bstr($ct) ;
+      
+        $seq = new Sequence( new ObjectIdentifier("1.2.840.113549.1.7.1") ,new ImplicitlyTaggedType(0, new Sequence(new OctetString($data))) );
+        $payload= $seq->toDER();
+    
+        $errors=[];
+        $certs=[];
+        
+        foreach(['http://acskidd.gov.ua/services/cmp/','http://masterkey.ua/services/cmp/'] as $host){
+                  
+            $request = curl_init();
+
+            curl_setopt_array($request, [
+                CURLOPT_URL => $host,
+                CURLOPT_POST => true,
+                CURLOPT_HEADER => false,
+                CURLOPT_HTTPHEADER => array(  "Content-Length: " . strlen($payload)),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_VERBOSE => 1,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_POSTFIELDS => $payload
+            ]);
+
+            $return = curl_exec($request);
+
+            if (curl_errno($request) > 0) {
+                $errors[]=  curl_error($request) ;
+                continue;
+            }
+            curl_close($request);
+
+            $der = Sequence::fromDER($return);  
+            $sq  = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
+            $pl=$sq->at(0)->asOctetString()->string();
+            $data  =  \PPOLib\Util::bstr2array($pl) ;
+            if($data[4]!=1) {
+              continue;
+            }
+            $data = array_slice($data,8)   ;
+            $data  =  \PPOLib\Util::array2bstr($data) ;
+            
+
+            $der = Sequence::fromDER($data);
+         //   $ctype = $der->at(0)->asObjectIdentifier()->oid();
+            $sq5 = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
+            $sq5 = $sq5->at(0)->asSequence();
+          
+            //data
+            $sqdata = $sq5->at(2)->asSequence();
+           
+            $ctype = $sqdata->at(0)->asObjectIdentifier()->oid();
+            if ($ctype == "1.2.840.113549.1.7.1") {   //data
+                $certificates= $sq5->at(3)->asTagged()->asImplicit(16)->asSequence();
+              
+                foreach($certificates as $certset)  {
+                     $cr  = $certset->asSequence() ;
+                     
+                     $certb = $cr->toDER();   
+                     $cert = \PPOLib\Cert::load($certb);  
+                     if($cert->isKeyUsage($op) ){;
+                        $cpub = $cert->pub();
+                        foreach($keys as $key){
+                            $pubk = $key->pub();
+           
+                            if ($pubk->q->isequal($cpub->q)) {
+                                return array( 'key'=>$key, 'cert'=>$cert, 'rawcert'=>$certb);
+                            }
+                        }
+                     }                 
+                      
+                }
+                
+            }       
  
+        }   
+        
+        if(count($errors)==0) {
+             throw new \Exception("Сертифікат для {$op} не  знайдено");
+        }  else {
+             throw new \Exception($errors[0] .' '.($errors[0] ?? '') ); 
+        }
+               
+    }
+  
 }

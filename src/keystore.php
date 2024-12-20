@@ -9,15 +9,14 @@ use PPOLib\Util;
  */
 class KeyStore
 {
-    /**
-     * Извдечение  ключа
+      /**
+     * Извлечение  ключей из контейнера
      *
-     * @param mixed $keydata    данные  с  файла
+     * @param mixed $keydata    данные  с  файла   контейнера  (обычно Key-6.dat)
      * @param mixed $pass   пароль  к ключу
-     * @param Cert $cert  сертификат
-     * @return Priv   приватный ключ
-     */
-    public static function load($keydata, $pass, Cert $cert) {
+     * @return array  массив приватных ключей
+     */ 
+    public static function parse($keydata, $pass ) {
 
         $keys = array();
 
@@ -212,9 +211,25 @@ class KeyStore
                 $msg = $e->getMessage();
             }
         }
+     
 
+        return $keys;
+       
+    }
 
-        $cp = $cert->pub();
+    /**
+     * Извлечение  ключа  для сертификата
+     *
+     * @param mixed $keydata    данные  с  файла
+     * @param mixed $pass   пароль  к ключу
+     * @param Cert $cert  сертификат
+     * @return Priv   приватный ключ
+     */    
+    public static function load($keydata, $pass, Cert $cert) {
+       
+       $keys = self::parse($keydata, $pass) ;
+ 
+       $cp = $cert->pub();
 
         foreach ($keys as $key) {
 
@@ -224,16 +239,16 @@ class KeyStore
 
                 return $key;
             }
-        }
-
-
-
-        throw new \Exception("Invalid key");
-    }
-
+        }      
+        throw new \Exception("Invalid key");      
+    }    
+    
+    
+    
     /**
      *  извлечение  ключа и сертификата  из  jks  хранилища
      * @param mixed $op   sign encrypt   для  подписи   или  шифрования
+     * @return  array возвращает  пару  ключ-сертификат
      */
     public static function loadjks($keydata, $pass,$op='sign') {
 

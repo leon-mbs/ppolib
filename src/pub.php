@@ -59,4 +59,31 @@ class Pub
         return $b == 0;
     }
 
+    
+    public function serialize() {
+       $f=  $this->q->compress() ;
+       $buf = $f->buf8();
+       
+        $cut=count($buf)  -ceil( $this->q->x->curve->m/8) ;
+        $inv=\PPOLib\Util::alloc(count($buf)+2-$cut) ;
+        
+     
+          for ($i = 2; $i < count($inv); $i++) {
+            $inv[$i] = $buf[count($buf) + 1 - $i] ??0;
+          }
+          $inv[0] = 0x04;
+          $inv[1] = count($buf) -$cut; 
+  
+       return $inv;       
+       
+       
+    }
+    
+    public function keyid() {
+       $inv=  $this->serialize() ;
+       
+       $hash= \PPOLib\Algo\Hash::gosthash($inv) ;
+     //  $hash = \PPOLib\Util::array2hex($hash)  ;
+       return  $hash;
+    }   
 }
