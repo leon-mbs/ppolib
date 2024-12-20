@@ -55,7 +55,7 @@
   `$info = \PPOLib\PPO::signinfo($answer) ;`
  
  
-   Загрузка сертификата  с центра  сертификации
+   Загрузка сертификата  с центра  сертификации  
    `\PPOLib\PPO::fetchCert($keydata,$pass  ) ;`
  
  
