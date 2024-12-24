@@ -48,7 +48,7 @@
 
    `$data = \PPOLib\PPO::decrypt($answer ) ;`
    
-   Если ответ  с ФС то он  будет  подписан  верно  и моджно поставить второй параметр  true что  ускорит  обработку.
+   Если ответ  с ФС то он  будет  подписан  верно  и можно поставить второй параметр  true что  ускорить  обработку.
    
    
    Получение информации о  подписи  
@@ -61,12 +61,12 @@
  
  
    Шифрование сообщения.  
-   Использутся  пара  ключ-сертификат для  шифрования а  также  сертификат  получателя
-   `\PPOLib\PPO::encode($message,$forcert,$key,$keycert );`
+   Использутся  пара  ключ-сертификат для  шифрования а  также  сертификат  получателя (ДФС)
+   `\PPOLib\PPO::encipher($message,$forcert,$key,$keycert );`
 
    Дещифрование сообщения.  
-   Использутся  ключ  от сертификата  получателя   
-   `\PPOLib\PPO::decode($message,$key );`
+     Использутся  пара  ключ  для  шифрования а  также  сертификат  получателя (ДФС)
+   `\PPOLib\PPO::decipher($message,$key,$forcert );`
    
    
    Для отправки  в электронный кабинет  используются функции  
@@ -80,7 +80,7 @@
    Примерная последовательность  
 
    шифруем данные  
-   `$encoded= \PPOLib\PPO::encode($message,$forcert,$key,$keycert);`
+   `$encoded= \PPOLib\PPO::encipher($message,$forcert,$key,$keycert);`
 
    `$h=\PPOLib\DFS::createHeader($keycert,"admin@gmail.com","test.txt");`
 
@@ -93,7 +93,7 @@
    $transport=\PPOLib\DFS::encodeSign($signed,$h ) ;
    ```
       
-   распаковка  
+   распаковка  ответа налоговой
    `\PPOLib\DFS::decode($ticket ) ;`
       
    

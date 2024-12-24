@@ -383,7 +383,7 @@ class PPO
    * @param Cert $cert  сертификат  ключа 
    * @return string
    */
-    public static function encode($message, Cert $forcert,  Priv $key, Cert $cert ) {
+    public static function encipher($message, Cert $forcert,  Priv $key, Cert $cert ) {
           
         $enc = $key->encrypt($message,$forcert);
       
@@ -438,9 +438,10 @@ class PPO
     * дешифрование
     * 
     * @param mixed $message  сообщение
-    * @param Priv $forkey  ключ, соответствуюший сертификату  для  котрого зашифровано
+    * @param Priv $key  ключ, соответствуюший сертификату  для  которого зашифровано
+    * @param Cert $forcert   сертификат получателя для  шифрования
     */
-    public static function decode($message   ,  Priv $forkey    ) {
+    public static function decipher($message   ,  Priv $key ,Cert $forcert   ) {
   
         $der = Sequence::fromDER($message);
         $ctype = $der->at(0)->asObjectIdentifier()->oid();
@@ -473,9 +474,11 @@ class PPO
         $p['ukm']= Util::bstr2array( $ukm);
         $p['iv']= Util::bstr2array( $iv);
           
-        $pub=$forkey->pub()  ;
+      //  $pub=$key->pub()  ;
+ 
+        $pub=$forcert->pub()  ;     
         
-        $dec = $forkey->decrypt($data,$pub, $p);
+        $dec = $key->decrypt($data,$pub, $p);
                
         return  $dec;
     }    
