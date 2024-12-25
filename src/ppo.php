@@ -364,13 +364,16 @@ class PPO
         $signerinfo1 = $sq5->at(4)->asSet();
         $signerinfo = $signerinfo1->at(0)->asSequence();
 
-       
-       
-        $a = $signerinfo->at(3)->asTagged()->asImplicit(16)->asSequence();
-        
-        $t = $a->at(3)->asSequence()->at(1)->asSet()->at(0)->asUTCTime()->dateTime()->getTimestamp()  ;
-        $ret['datesign']= date("Y-m-d H:i:s",$t);
-
+        $attributes = $signerinfo->at(3)->asTagged()->asImplicit(16)->asSequence();
+        foreach($attributes as $a) {
+            $oid= $a->asSequence()->at(0)->asObjectIdentifier()->oid();
+            if($oid=='1.2.840.113549.1.9.5')   {
+                $t = $a->asSequence()->at(1)->asSet()->at(0)->asUTCTime()->dateTime()->getTimestamp()  ;
+                $ret['datesign']= date("Y-m-d H:i:s",$t);
+            }
+            
+        }
+  
         return $ret;
     }
    
