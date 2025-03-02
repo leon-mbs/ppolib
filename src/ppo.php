@@ -133,7 +133,7 @@ class PPO
      * извлекает  данные  из  сообщения
      *
      * @param mixed $message  входное сообщение
-     * @param mixed $onlydata    проверять  цифровую  подпись
+     * @param mixed $onlydata   не проверять  цифровую  подпись, только  вернуть данные
      * @param mixed $detachedfile   данные  с  случае открепленной подписи
      * @return mixed   извлеченные  данные
      */
