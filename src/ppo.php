@@ -133,7 +133,7 @@ class PPO
      * извлекает  данные  из  сообщения
      *
      * @param mixed $message  входное сообщение
-     * @param mixed $onlydata   не проверять  цифровую  подпись, только  вернуть данные
+     * @param mixed $onlydata     не проверять  цифровую  подпись, только  вернуть данные
      * @param mixed $detachedfile   данные  с  случае открепленной подписи
      * @return mixed   извлеченные  данные
      */
@@ -232,15 +232,15 @@ class PPO
      */
     public static function send($data, $type) {
 
-      //  $fp = fopen(_ROOT.'/logs/curl.txt', 'w');      
-      
+        $ct = $type=='cmd' ? 'application/json' : 'application/octet-stream' ;
+     
         $request = curl_init();
 
         curl_setopt_array($request, [
             CURLOPT_URL => "http://fs.tax.gov.ua:8609/fs/{$type}",
             CURLOPT_POST => true,
             CURLOPT_HEADER => false,
-            CURLOPT_HTTPHEADER => array('Content-Type: application/octet-stream', "Content-Length: " . strlen($data)),
+            CURLOPT_HTTPHEADER => array('Content-Type: '.$ct, "Content-Length: " . strlen($data)),
          //   CURLOPT_ENCODING => "",
             CURLOPT_RETURNTRANSFER => true,
          //   CURLOPT_CONNECTTIMEOUT => 20,
