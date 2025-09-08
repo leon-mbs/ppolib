@@ -454,10 +454,18 @@ class PPO
         }   
      
         $encoded = $der->at(1)->asTagged()->asImplicit(16)->asSequence()->at(0)->asSequence();
-        $KeyAgreeRecipientInfo =  $encoded->at(1)->asSet();
-        $KeyAgreeRecipientInfo=$KeyAgreeRecipientInfo->at(0)->asTagged()->asImplicit(16)->asSequence()  ;
+        $i=1;
+        $test= $encoded->at(1) ;
+        
+        if($test->tag()==0)  {  // originatorinfo
+          $i++   ;
+        }
       
-        $encryptedContentInfo =  $encoded->at(2)->asSequence();
+        $KeyAgreeRecipientInfo =  $encoded->at($i++)->asSet();
+      
+        $encryptedContentInfo =  $encoded->at($i)->asSequence();
+     
+        $KeyAgreeRecipientInfo=$KeyAgreeRecipientInfo->at(0)->asTagged()->asImplicit(16)->asSequence()  ;
        
         $e = $encryptedContentInfo->at(2)->asTagged()->asImplicit(4)->asOctetString()->string() ;
         $data= Util::bstr2array($e) ;
