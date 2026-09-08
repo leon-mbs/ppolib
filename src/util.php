@@ -171,7 +171,11 @@ class Util
 
             $a[] = ord($c);
         }
-
+        $t=  array_values(unpack('C*', $str) );
+        if($t !== $a)  {
+          $t= $a; 
+        }
+       
         if ($to8) {
             $c = 8 - count($a) % 8;
 
@@ -185,7 +189,7 @@ class Util
     public static function array2bstr($array) {
 
         $bstr = pack('H*', Util::array2hex($array));
-        ;
+         
         return $bstr;
     }
 

@@ -149,11 +149,11 @@ class PPO
         $sq5 = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
         $sq5 = $sq5->at(0)->asSequence();
 
-        //1.2.804.2.1.1.1.1.2.1
+       
         $algo = $sq5->at(1)->asSet();
         if(count($algo)>0)  {
             $algo = $algo->at(0)->asSequence();
-            //Gost34311
+            
             $algo = $algo->at(0)->asObjectIdentifier()->oid();
 
         }
@@ -178,9 +178,17 @@ class PPO
             throw new \Exception("No payload data");
         }
         
-        $hash = \PPOLib\Algo\Hash::gosthash($xml);
-        $hash1 = Util::array2bstr($hash);        
         
+        if($algo=="1.2.804.2.1.1.1.1.2.1") {
+            $hash = \PPOLib\Algo\Hash::gosthash($xml);
+       
+        }
+        
+        if($algo=="1.2.804.2.1.1.1.1.2.2.1") {
+            $hash = \PPOLib\Algo\DSTU7564::hash($xml); 
+        }
+          
+        $hash1 = Util::array2bstr($hash);        
         
         //cert
         $sqcert = $sq5->at(3)->asTagged()->asImplicit(16)->asSequence();
@@ -200,9 +208,16 @@ class PPO
 
         $c = count($a);
 
-        $hh = $a->at(2)->asSequence()  ;
-        $hash2 = $hh->at(1)->asSet()->at(0)->asOctetString()->string();
-
+        foreach($a as $v) {
+          $oid=  $v->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
+          if($oid=="1.2.840.113549.1.9.4") {
+               $hash2 = $v->asSequence()->at(1)->asSet()->at(0)->asOctetString()->string();
+          }
+        }
+             
+        
+        
+     
         if($hash1 !== $hash2) {
             throw new \Exception("Incorrect hash of the  data");
         }
