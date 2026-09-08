@@ -181,7 +181,6 @@ class PPO
         
         if($algo=="1.2.804.2.1.1.1.1.2.1") {
             $hash = \PPOLib\Algo\Hash::gosthash($xml);
-       
         }
         
         if($algo=="1.2.804.2.1.1.1.1.2.2.1") {
@@ -209,23 +208,28 @@ class PPO
         $c = count($a);
 
         foreach($a as $v) {
-          $oid=  $v->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
-          if($oid=="1.2.840.113549.1.9.4") {
+            $oid=  $v->asSequence()->at(0)->asObjectIdentifier()->oid()  ;
+            if($oid=="1.2.840.113549.1.9.4") {
                $hash2 = $v->asSequence()->at(1)->asSet()->at(0)->asOctetString()->string();
-          }
+            }
         }
-             
-        
-        
+     
      
         if($hash1 !== $hash2) {
             throw new \Exception("Incorrect hash of the  data");
         }
+    
+         $algo = $signerinfo->at(4)->asSequence()->at(0)->asObjectIdentifier()->oid();
         
+         $derattrs = (new Set($a->at(0)->asSequence(), $a->at(1)->asSequence(), $a->at(2)->asSequence(), $a->at(3)->asSequence()))->toDER();
+         if($algo=="1.2.804.2.1.1.1.1.2.1") {
+            $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
+       
+         }
         
-        $derattrs = (new Set($a->at(0)->asSequence(), $a->at(1)->asSequence(), $a->at(2)->asSequence(), $a->at(3)->asSequence()))->toDER();
-
-        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
+        if($algo=="1.2.804.2.1.1.1.1.3.6.1.1") {
+            $ahash = \PPOLib\Algo\DSTU7564::hash($derattrs); 
+        }
         $ahash = Util::array2bstr($ahash);
 
         $signature = $signerinfo->at(5)->asOctetString()->string();
