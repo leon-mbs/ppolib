@@ -288,12 +288,12 @@ class DSTU7564
         return $padded;
     }
 
-    public static function hash($data) {
+    public static function hash($data,$n = 256) {
         if (is_string($data)) {
-            $data = Util::str2array($data);
-			//$data = Util::bstr2array($data);
+            $data = Util::bstr2array($data);
+			 
         }
-        $hash = new DSTU7564();
+        $hash = new DSTU7564($n);
         $hash->update($data, 0, count($data));
         return $hash->finish();
     }
