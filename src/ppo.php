@@ -222,10 +222,18 @@ class PPO
             throw new \Exception("Incorrect hash of the  data");
         }
         
-        
+        $algo = $signerinfo->at(4)->asSequence()->at(0)->asObjectIdentifier()->oid();
+    
         $derattrs = (new Set($a->at(0)->asSequence(), $a->at(1)->asSequence(), $a->at(2)->asSequence(), $a->at(3)->asSequence()))->toDER();
 
-        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
+        if($algo=="1.2.804.2.1.1.1.1.2.1") {
+            $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
+       
+         }
+
+        if($algo=="1.2.804.2.1.1.1.1.3.6.1.1") {
+            $ahash = \PPOLib\Algo\DSTU7564::hash($derattrs); 
+        }
         $ahash = Util::array2bstr($ahash);
 
         $signature = $signerinfo->at(5)->asOctetString()->string();
