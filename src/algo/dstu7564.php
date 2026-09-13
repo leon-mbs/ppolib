@@ -2,6 +2,12 @@
 namespace PPOLib\Algo;
 use PPOLib\Util;
 
+/**
+ * Шифрование согласно ДСТУ 7564 (Купына)
+ * Портировано с https://github.com/storojs72/bc-dstu-csharp
+ * Использует настоящую 64-битную арифметику через GMP, что гарантирует 
+ * 100% совместимость с эталонными реализациями на C#/Java.
+ */
 class DSTU7564
 {
     public const ROWS = 8;
