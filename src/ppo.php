@@ -27,9 +27,10 @@ class PPO
     public static function sign($message, Priv $key, Cert $cert,$detached=false,$usetsp=false) {
 
 
-       
+        $hashid="1.2.804.2.1.1.1.1.2.1";  //gost89
 
-        $hash = \PPOLib\Algo\DSTU7564::hash($message);
+
+        $hash = \PPOLib\Algo\Hash::gosthash($message);
         $hashtsp = $hash;
                     
         $hash = Util::array2bstr($hash);
@@ -53,7 +54,8 @@ class PPO
             $data = new Sequence($dataid, $data);
         }
         
-        
+        $algoid = new ObjectIdentifier($hashid);    //hashid
+
 
         $version = new Integer(1);
         $algoidenc = new ObjectIdentifier("1.2.804.2.1.1.1.1.3.1.1");    //DSTU_4145_LE
@@ -69,7 +71,6 @@ class PPO
         $cv2 = new Sequence($cert_issuer4, $cert_serial);
 
         //атрибуты для  подписи
-        $hashid="1.2.804.2.1.1.1.1.2.2.1";   
 
         $seq3 = new Sequence(new Sequence(new ObjectIdentifier($hashid)), new OctetString($certhash), $cv2);
 
@@ -78,23 +79,33 @@ class PPO
         $attr3 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.4"), new Set(new OctetString($hash)));
         $attr4 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.5"), new Set(new UTCTime(new \DateTimeImmutable(date('Y-m-d H:i:s')))));
 
-    
+        /*
+        if($usetsp) {
+            $tsp = \PPOLib\PPO::getTimestamp($tsplink, $hashb);
+
+            $attr5 = new Sequence(new ObjectIdentifier("1.2.840.113549.1.9.16.2.20"),new Set( $tsp));
+            $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3,   $attr5,$attr4));            
+            $derattrs = (new Set($attr1, $attr2, $attr3,   $attr5,$attr4))->toDER();            
+        }  else {
+           $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
+           $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
+        }
+      */
         $attrs = new ImplicitlyTaggedType(0, new Sequence($attr1, $attr2, $attr3, $attr4));
         $derattrs = (new Set($attr1, $attr2, $attr3, $attr4))->toDER();
  
      
 
-        $ahash = \PPOLib\Algo\DSTU7564::hash($derattrs);
+        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
         $ahashtsp =$ahash;
         $ahash = Util::array2bstr($ahash);
 
         $sign = $key->sign($ahash);
-        $signb= \PPOLib\Algo\DSTU7564::hash($sign);;
+        $signb= \PPOLib\Algo\Hash::gosthash($sign);;
         $sign = new OctetString($sign);
           
 
-       $algoid = new ObjectIdentifier("1.2.804.2.1.1.1.1.2.2.1");    //hashid
-
+  
        if($usetsp) {
             $tsp = \PPOLib\PPO::getTimestamp($tsplink, $signb);
  
@@ -211,18 +222,10 @@ class PPO
             throw new \Exception("Incorrect hash of the  data");
         }
         
-        $algo = $signerinfo->at(4)->asSequence()->at(0)->asObjectIdentifier()->oid();
-    
+        
         $derattrs = (new Set($a->at(0)->asSequence(), $a->at(1)->asSequence(), $a->at(2)->asSequence(), $a->at(3)->asSequence()))->toDER();
 
-        if($algo=="1.2.804.2.1.1.1.1.2.1") {
-            $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
-       
-         }
-
-        if($algo=="1.2.804.2.1.1.1.1.3.6.1.1") {
-            $ahash = \PPOLib\Algo\DSTU7564::hash($derattrs); 
-        }
+        $ahash = \PPOLib\Algo\Hash::gosthash($derattrs);
         $ahash = Util::array2bstr($ahash);
 
         $signature = $signerinfo->at(5)->asOctetString()->string();
@@ -517,7 +520,9 @@ class PPO
     public static function fetchCert(   $keydata, $pass, $op='sign')  {
         
         $keys =  \PPOLib\KeyStore::parse($keydata, $pass);
-            
+        if(count($keys)==1) {
+           $keys[1]= $keys[0] ;
+        }
       
         $keyids=[[],[]];
       
