@@ -155,14 +155,11 @@ class Util
     }
 
     public static function alloc($length, $v = 0,$rand=false) {
-        $a = array();
-        for ($i = 0; $i < $length; $i++) {
-            $a[$i] = $v;
-            if($rand) {
-               $a[$i] = rand(0,255); 
-            }
+        if ($rand) {
+            // Криптостойкий источник для CEK/UKM/IV вместо предсказуемого rand().
+            return array_values(unpack('C*', random_bytes($length)));
         }
-        return $a;
+        return array_fill(0, $length, $v);
     }
 
     public static function bstr2array($str, $to8 = false) {

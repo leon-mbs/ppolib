@@ -203,9 +203,16 @@ class Curve
 
         $r = new Field();
 
-        $r->value = gmp_init(rand(10, PHP_INT_MAX-1), 10);
+        // Криптостойкий эфемерный ключ k полной длины порядка кривой.
+        // rand() давал ~63 бита и был предсказуем, что компрометировало приватный ключ.
+        $bytes = intdiv($this->order->getLength() + 7, 8);
+        $r->value = gmp_init(bin2hex(random_bytes($bytes)), 16);
         $r->curve = $this;
         $r = $this->truncate($r);
+
+        if (gmp_cmp($r->value, 0) <= 0) {   // k=0 недопустим
+            return $this->random();
+        }
 
         return $r;
     }

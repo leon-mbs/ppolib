@@ -207,7 +207,7 @@ class KeyStore
        
                     
                 }
-                else return 'err_invalid_key_'.$uid; 
+                else throw new \Exception('err_invalid_key_'.$uid);
 
 
          
@@ -230,8 +230,7 @@ class KeyStore
                 $uid = $seq->at(0)->asSequence()->at(0)->asObjectIdentifier()->oid();
 
                 if ($uid != "1.3.6.1.4.1.19398.1.1.1.2") {  //IIT Store
-                    //throw new \Exception("Неверное хранилище  ключа");
-                    return 'invalid_key_conteiner';
+                    throw new \Exception('invalid_key_conteiner');
                 }
 
                 $cryptParam = $seq->at(0)->asSequence()->at(1)->asSequence();
