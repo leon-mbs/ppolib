@@ -271,7 +271,8 @@ class PPO
 
             throw new \Exception(curl_error($request));
         }
-        curl_close($request);
+      
+        unset($request);
 
 
         return $return;
@@ -319,7 +320,7 @@ class PPO
 
             throw new \Exception(curl_error($request));
         }
-        curl_close($request);
+        unset($request);
 
     
         $seq =  Sequence::fromDER($return);
@@ -576,7 +577,7 @@ class PPO
                 $errors[]=  curl_error($request) ;
                 continue;
             }
-            curl_close($request);
+            unset($request);
 
             $der = Sequence::fromDER($return);  
             $sq  = $der->at(1)->asTagged()->asImplicit(16)->asSequence();
