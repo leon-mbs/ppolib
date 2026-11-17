@@ -203,9 +203,10 @@ class Curve
 
         $r = new Field();
 
-        $r->value = gmp_init(rand(10, PHP_INT_MAX-1), 10);
+        $n = $this->order->value;
+        $bytes = random_bytes(intdiv(strlen(gmp_strval($n, 2)) + 7, 8) + 8);
+        $r->value = gmp_add(gmp_mod(gmp_import($bytes), gmp_sub($n, 1)), 1);
         $r->curve = $this;
-        $r = $this->truncate($r);
 
         return $r;
     }

@@ -48,9 +48,18 @@ class Pub
         $r = Field::fromString($rb, 16);
         $s = Field::fromString($sb, 16);
 
+        $n = $this->q->x->curve->order->value;
+        if (gmp_cmp($r->value, 0) <= 0 || gmp_cmp($r->value, $n) >= 0
+            || gmp_cmp($s->value, 0) <= 0 || gmp_cmp($s->value, $n) >= 0) {
+            return false;
+        }
+
         $Q = $this->q->mul($r);
         $S = $this->q->x->curve->base->mul($s);
         $pr = $S->add($Q);
+        if ($pr->iszero()) {
+            return false;
+        }
         $tt = $pr->x->toString(16) ;
         $ttt = Util::hex2array($tt) ;
         $r1 = $pr->x->mulmod($hv);

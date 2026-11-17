@@ -159,7 +159,7 @@ class Util
         for ($i = 0; $i < $length; $i++) {
             $a[$i] = $v;
             if($rand) {
-               $a[$i] = rand(0,255); 
+               $a[$i] = random_int(0, 255);
             }
         }
         return $a;
